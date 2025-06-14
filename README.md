@@ -27,3 +27,10 @@ npm run dev
 ```sh
 npm run build
 ```
+## Komponen
+
+- ProjectCard <br>
+ProjectCard itu komponen buat tampilan satu kartu yang di halaman bisa dipake di mana aja 
+
+- Cards <br>
+Kumpulan beberapa ProjectCard
