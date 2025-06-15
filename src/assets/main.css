@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @import './base.css';
 @import 'tailwindcss';
 
@@ -9,7 +10,14 @@
   font-weight: normal;
 }
 
-a,
+/* * {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+} */
+
+
+/* a,
 .green {
   text-decoration: none;
   color: hsla(160, 100%, 37%, 1);
@@ -21,7 +29,7 @@ a,
   a:hover {
     background-color: hsla(160, 100%, 37%, 0.2);
   }
-}
+} */
 
 @media (min-width: 1024px) {
   body {
@@ -35,3 +43,28 @@ a,
     padding: 0 0;
   }
 }
+
+::-webkit-scrollbar {
+  height: 6px;      /* Horizontal scrollbar */
+  width: 6px;       /* Vertical scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+
+::-webkit-scrollbar-thumb {
+  
+  background-color: #3B82F6; /* tailwind's blue-500 */
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* Untuk Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3B82F6 transparent;
+}
+
+ /* oklch(82.8% 0.111 230.318) */
