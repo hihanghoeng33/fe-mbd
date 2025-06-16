@@ -3,35 +3,39 @@ import ProjectCardMain from './ProjectCardMain.vue';
 
 const projects = [
   {
-    title: 'Judul Proyek',
-    author: 'Dosen A',
+    title: 'Dompet Digital Aman Berbasis Blockchain',
+    author: 'Prof.Dr.(ENG).IR. Benjamin Bryant',
     filled: 5,
     total: 6,
-    categories: ['kategori_A', 'kategori_B'],
+    categories: ['Blockchain', 'LLM'],
+    description: 'Aplikasi dompet digital dengan keamanan terjamin.'
     // image: '/project1.jpg'
   },
   {
-    title: 'Judul Proyek',
-    author: 'Dosen B',
+    title: 'Pengembangan Sistem Pembayaran Wajah',
+    author: 'Danny Mason S.Kom., M.Kom.',
     filled: 5,
     total: 8,
-    categories: ['kategori_A', 'kategori_B'],
+    categories: ['LLM', 'Sustainibility'],
+    description: 'Inovasi pembayaran menggunakan teknologi pengenalan wajah.'
     // image: '/project2.jpg'
   },
   {
-    title: 'Judul Proyek',
-    author: 'Dosen C',
+    title: 'Senolacrity',
+    author: 'Heather King S.Kom., M.Kom., Ph.D.',
     filled: 4,
     total: 7,
-    categories: ['kategori_A', 'kategori_B'],
+    categories: ['IoT', 'Sustainibility'],
+    description: 'Studi dan pengembangan metode daur ulang yang efektif.'
     // image: '/project1.jpg'
   },
   {
-    title: 'Judul Proyek',
-    author: 'Dosen D',
+    title: 'Solusi Cerdas untuk Pertanian Modern',
+    author: 'Jessica Jones S.T.,M.T.,',
     filled: 1,
     total: 3,
-    categories: ['kategori_A', 'kategori_B'],
+    categories: ['IoT', 'LLM'],
+    description: 'Penggunaan AI untuk optimasi hasil pertanian.'
     // image: '/project2.jpg'
   },
 
@@ -45,7 +49,7 @@ const projects = [
 
     <!-- Input Pencarian + Filter -->
     <div class="flex gap-x-16 gap-y-4">
-        <div class="flex items-center bg-[#E8EDF2] rounded-xl justify-center h-12 mb-4 w-full max-w-4xl text-gray-700">
+        <div class="flex items-center bg-[#E8EDF2] rounded-xl justify-center h-12 mb-4 lg:w-full text-gray-700 p-3">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M9.5 16q-2.725 0-4.612-1.888T3 9.5t1.888-4.612T9.5 3t4.613 1.888T16 9.5q0 1.1-.35 2.075T14.7 13.3l5.6 5.6q.275.275.275.7t-.275.7t-.7.275t-.7-.275l-5.6-5.6q-.75.6-1.725.95T9.5 16m0-2q1.875 0 3.188-1.312T14 9.5t-1.312-3.187T9.5 5T6.313 6.313T5 9.5t1.313 3.188T9.5 14"/></svg>
         <input
           type="text"
@@ -60,7 +64,7 @@ const projects = [
     </div>
     <div class="h-8"></div>
     <!-- Daftar Proyek -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-y-10">
       <ProjectCardMain
         v-for="(project, index) in projects"
         :key="index"
@@ -70,6 +74,7 @@ const projects = [
         :total="project.total"
         :categories="project.categories"
         :image="project.image"
+        :description="project.description"
       />
     </div>
   </div>

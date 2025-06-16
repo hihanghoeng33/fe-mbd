@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed } from "vue";
 
 const props = defineProps({
   title: {
@@ -9,10 +9,6 @@ const props = defineProps({
   author: {
     type: String,
     default: "Nama Dosen",
-  },
-  image: {
-    type: String,
-    default: "/default-project.png",
   },
   category: {
     type: String,
@@ -25,29 +21,36 @@ const props = defineProps({
   total: {
     type: Number,
     default: 1,
-  }
+  },
+  description: {
+    type: String,
+    default:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus deleniti saepe vel quasi quaerat voluptate magnam, laboriosam, id esse dolor, earum rerum pariatur. Exercitationem rem voluptas deserunt ipsa illo expedita.",
+  },
 });
 
 const slots = defineSlots();
 
 const barColor = computed(() => {
-  const percent = (props.filled/props.total) * 100;
-  if(percent>=80) return 'bg-red-500'
-  if(percent>=50) return 'bg-yellow-500'
-  return 'bg-green-500'
-})
+  const percent = (props.filled / props.total) * 100;
+  if (percent >= 80) return "bg-red-500";
+  if (percent >= 50) return "bg-yellow-500";
+  return "bg-green-500";
+});
 </script>
 
 <template>
   <div
     class="bg-[#E8EDF2] shadow-md hover:shadow-lg transition-shadow overflow-hidden rounded-lg w-96"
   >
-    <img :src="image" :alt="title" class="w-96 h-48 object-cover" />
     <div class="p-4">
-      <h3 class="text-lg font-semibold text-gray-800 mb-1">
-        {{ title }}
-      </h3>
+      <div class="h-16">
+        <h3 class="text-lg font-semibold text-gray-800 mb-1 line-clamp-2">
+          {{ title }}
+        </h3>
+      </div>
       <p class="text-sm text-gray-500">Oleh {{ author }}</p>
+      <p class="text-sm text-gray-400 line-clamp-3 h-16">{{ description }}</p>
       <div class="container pt-2">
         <div class="flex flex-wrap gap-2">
           <span
@@ -64,7 +67,7 @@ const barColor = computed(() => {
           {{ filled }}/{{ total }} Pendaftar
         </p>
 
-        <div class=" bg-gray-300 rounded-full h-2 mt-1 max-w-60">
+        <div class="bg-gray-300 rounded-full h-2 mt-1 max-w-60">
           <div
             :class="[barColor, 'h-2 rounded-full', 'max-w-full']"
             :style="{ width: (filled / total) * 100 + '%' }"

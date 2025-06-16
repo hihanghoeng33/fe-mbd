@@ -6,6 +6,7 @@ import Index from '@/components/Index.vue';
 import Home from '@/components/Home.vue';
 import Projects from '@/components/Projects.vue';
 import Archive from '@/components/Archive.vue';
+import DetailProject from '@/components/DetailProject.vue';
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -36,11 +37,11 @@ const router = createRouter({
           name: 'projects',
           component: Projects
         },
-        //{
-        //     path: 'profile',
-        //     name: 'profile',
-        //     component: Profile
-        // }, 
+        {
+            path: '/detailprojects',
+            name: 'detailprojects',
+            component: DetailProject
+        }, 
         {
             path: '/archive',
             name: 'archive',

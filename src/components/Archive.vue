@@ -2,40 +2,36 @@
 import ProjectCardArchive from './ProjectCardArchive.vue';
 const projects = [
   {
-    title: 'Judul Proyek',
-    author: 'Dosen A',
-    filled: 5,
-    total: 6,
-    categories: ['kategori_A', 'kategori_B'],
+    title: 'Aplikasi Belanja Online Ramah Pengguna',
+    author: 'Victoria Baldwin S.Kom., M.Kom.,',
+    categories: ['Mobile', 'LLM'],
     // image: '/project1.jpg'
-    stats: 'On Going'
+    stats: 'On Going',
+    description: 'Aplikasi untuk memantau aktivitas fisik dan kesehatan.'
   },
   {
-    title: 'Judul Proyek',
-    author: 'Dosen B',
-    filled: 5,
-    total: 8,
-    categories: ['kategori_A', 'kategori_B'],
+    title: 'Monitoring Kesehatan IoT untuk Lansia',
+    author: 'Joshua Nguyen S.Kom., M.Kom., Ph.D.',
+    categories: ['IoT', 'Web'],
     // image: '/project2.jpg'
-    stats: 'finished'
+    stats: 'finished',
+    description: 'Perangkat IoT untuk memantau kesehatan lansia dari jarak jauh.'
   },
   {
-    title: 'Judul Proyek',
-    author: 'Dosen C',
-    filled: 4,
-    total: 7,
-    categories: ['kategori_A', 'kategori_B'],
+    title: 'Analisis Tren Pasar Kripto',
+    author: 'Amy Hernandez, S.Kom., M.Kom.',
+    categories: ['Web', 'LLM'],
     // image: '/project1.jpg'
-    stats: 'On going'
+    stats: 'On going',
+    description: 'Analisis data untuk memprediksi pergerakan pasar kripto.'
   },
   {
-    title: 'Judul Proyek',
-    author: 'Dosen D',
-    filled: 1,
-    total: 3,
-    categories: ['kategori_A', 'kategori_B'],
+    title: 'Riset Daur Ulang Limbah Plastik',
+    author: 'Bradley Jones S.Kom., M.Kom.',
+    categories: ['IoT', 'Web'],
     // image: '/project2.jpg'
-    stats: 'cancelled'
+    stats: 'finished',
+    description: 'Studi dan pengembangan metode daur ulang yang efektif.'
   },
 ]
 </script>
@@ -63,21 +59,127 @@ const projects = [
     <div class="h-8"></div>
     <!-- Daftar Proyek -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-y-10">
-      <ProjectCardArchive
+      <ProjectCardArchive 
         v-for="(project, index) in projects"
         :key="index"
+        :to="project.to"
         :title="project.title"
         :author="project.author"
-        :filled="project.filled"
-        :total="project.total"
         :categories="project.categories"
         :image="project.image"
         :stats="project.stats"
+        :description="project.description"
       />
     </div>
   </div>
 </template>
 
 <style scoped>
+.be-vietnam-pro-thin {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
 
+.be-vietnam-pro-extralight {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.be-vietnam-pro-light {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.be-vietnam-pro-regular {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.be-vietnam-pro-medium {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.be-vietnam-pro-semibold {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.be-vietnam-pro-bold {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.be-vietnam-pro-extrabold {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 800;
+  font-style: normal;
+}
+
+.be-vietnam-pro-black {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.be-vietnam-pro-thin-italic {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 100;
+  font-style: italic;
+}
+
+.be-vietnam-pro-extralight-italic {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 200;
+  font-style: italic;
+}
+
+.be-vietnam-pro-light-italic {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.be-vietnam-pro-regular-italic {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.be-vietnam-pro-medium-italic {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.be-vietnam-pro-semibold-italic {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.be-vietnam-pro-bold-italic {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.be-vietnam-pro-extrabold-italic {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 800;
+  font-style: italic;
+}
+
+.be-vietnam-pro-black-italic {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+}
 </style>
