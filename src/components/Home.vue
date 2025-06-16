@@ -29,28 +29,31 @@ onBeforeUnmount(() => {
     <!-- Rekomendasi Proyek -->
     <h2 class="text-xl be-vietnam-pro-semibold text-gray-800 pb-4 pt-8">Rekomendasi proyek</h2>
     <div ref="scrollContainer" class="overflow-x-auto relative scroll-smooth">
-      <div class=" flex gap-4 border-4 w-max">
+      <div class=" flex gap-4 w-max pb-4">
         <ProjectCardMain
-          title="Penelitian interaksi manusia dan komputer"
+          title="Sistem Rekomendasi Film Berbasis AI"
           author="Prof. Dr. Amritzal Jago Banget"
           filled="4"
           total="8"
+          description="Rekomendasi film personalisasi menggunakan AI."
         />
         <ProjectCardMain
-          title="Robot Berkaki 4 untuk Lost & Found"
+          title="Aplikasi Manajemen Acara Kampus"
           author="Prof. Dr. Arya Jago Banget"
           filled="16"
           total="10"
+          description="Mempermudah pengelolaan dan pendaftaran acara di kampus."
         />
         <ProjectCardMain 
-          title="Aksi kontol kontolan"
-          author="Ambasing"
+          title="Kampanye Lingkungan Hidup Berbasis Digital"
+          author="Prof.Dr.(Eng). Ir. Ironi"
           filled="3"
           total="4"
+          description="Mengelola acara kampanye lingkungan secara daring."
         />
         <ProjectCardMain 
-          title="Aksi kontol kontolan"
-          author="Ambasing"
+          title="Penelitian Alat Pemusnah Masal Studi Kasus Jawa Timur"
+          author="Prof.Dr.(ENG). Imut Sasimok, S.Kom., M.Kom."
           filled="3"
           total="2"
         />

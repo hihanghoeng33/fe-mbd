@@ -31,11 +31,12 @@ const navItems = [
     { icon: '/briefcase.png', label: 'Daftar Proyek', to: '/projects' },
     { icon: '/Arsip.png', label: 'Arsip', to: '/archive' }
   ]
+
 </script>
 
 
 <template>
-  <aside class="w-64 gap-4 min-h-screen  px-6 py-4">
+  <aside class="lg:w-64 md:w-32 sm:w-0 gap-4 min-h-screen  px-6 py-4">
     <!-- Menu navigasi -->
     <nav class="gap-y-6 flex flex-col">
       <NavItem @click="navigateTo(item.to)"
