@@ -35,24 +35,28 @@ onBeforeUnmount(() => {
           author="Prof. Dr. Amritzal Jago Banget"
           filled="4"
           total="8"
+          category="AI"
         />
         <ProjectCardMain
           title="Robot Berkaki 4 untuk Lost & Found"
           author="Prof. Dr. Arya Jago Banget"
           filled="16"
           total="10"
+          category="Robotics"
         />
         <ProjectCardMain 
           title="Aksi kontol kontolan"
           author="Ambasing"
           filled="3"
           total="4"
+          category="Database"
         />
         <ProjectCardMain 
           title="Aksi kontol kontolan"
           author="Ambasing"
           filled="3"
           total="2"
+          category="Database"
         />
       </div>
     </div>
