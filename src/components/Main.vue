@@ -1,18 +1,27 @@
 <script setup>
-import Navbar from './Navbar.vue';
+console.log('Main component loaded');
 import { RouterView } from 'vue-router';
+import Navbar from './Navbar.vue';
 import Sidebar from './Sidebar.vue';
+// const user = JSON.parse(localStorage.getItem('user'));
+// if (!user) {
+//   window.location.href = '/login';
+// }
 </script>
 
 <template>
-    <div class="flex min-w-screen min-h-screen bg-gray-100">
-        <Navbar />
-        <Sidebar />
-        <div class="flex-1 p-6">
-            <RouterView />
-        </div>
+  <div class="min-h-screen min-w-screen bg-gray-100">
+    <Navbar />
+    <div class="h-8"></div>
+    <div class="mt-8 flex flex-1 m-5 pt-16">
+      <Sidebar class=" w-64 sticky" />
+      <main class="flex-1 p-8 overflow-hidden">
+        <RouterView />
+      </main>
     </div>
+  </div>
 </template>
+
 <style scoped>
 .be-vietnam-pro-thin {
   font-family: "Be Vietnam Pro", sans-serif;

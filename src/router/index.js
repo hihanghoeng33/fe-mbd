@@ -4,11 +4,13 @@ import Login from '@/components/Login.vue';
 import Register from '@/components/Register.vue';
 import Index from '@/components/Index.vue';
 import Home from '@/components/Home.vue';
-
+import Projects from '@/components/Projects.vue';
+import Archive from '@/components/Archive.vue';
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
-    routes: [{
+    routes: [
+    {
         path: '/',
         name: 'index',
         component: Index
@@ -29,33 +31,34 @@ const router = createRouter({
             name: 'home',
             component: Home
         },
-        // {
-        //   path: 'projects',
-        //   name: 'projects',
-        //   component: Projects
-        // },{
+        {
+          path: '/projects',
+          name: 'projects',
+          component: Projects
+        },
+        //{
         //     path: 'profile',
         //     name: 'profile',
         //     component: Profile
-        // }, {
-        //     path: 'archive',
-        //     name: 'archive',
-        //     component: Archive
-        // }
+        // }, 
+        {
+            path: '/archive',
+            name: 'archive',
+            component: Archive
+        }
         ]
     }]
 })
 
 console.log('Router initialized');
-
+console.log('Routes:', router.getRoutes());
 // router.beforeEach((to, from, next) => {
-    // next();
+//     next();
 //   const isAuthenticated = localStorage.getItem('token')
 
-//   const publicPages = ['login', 'register', 'index']
+//   const publicPages = ['login', 'register', 'index', 'dashboard']
 //   const authRequired = !publicPages.includes(to.name)
 //     console.log('Navigating to:', to.name, 'Auth Required:', authRequired, 'Is Authenticated:', isAuthenticated)
-//     next();
 //   if (authRequired && !isAuthenticated) {
 //     next({ name: 'index' }) // redirect ke halaman home
 //   } else {

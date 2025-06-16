@@ -1,52 +1,172 @@
+<script setup>
+import Hero from './Hero.vue';
+import ProjectCardMain from './ProjectCardMain.vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+
+const scrollContainer = ref(null);
+
+function handleWheelScroll(e) {
+  if (e.deltaY !== 0) {
+    e.preventDefault();
+    scrollContainer.value.scrollLeft += e.deltaY;
+  }
+}
+
+onMounted(() => {
+  const el = scrollContainer.value;
+  el.addEventListener('wheel', handleWheelScroll, { passive: false });
+});
+
+onBeforeUnmount(() => {
+  scrollContainer.value?.removeEventListener('wheel', handleWheelScroll);
+});
+</script>
 <template>
-  <div class="space-y-8">
+  <div class="gap-8 mt-8">
     <!-- Hero Section -->
     <Hero nama="Amtsal" />
 
-    <!-- Pengumuman Terbaru -->
-    <div class="bg-white shadow-sm rounded-lg p-5">
-      <h2 class="text-xl font-medium text-gray-800 mb-2">Pengumuman Terbaru</h2>
-      <div class="flex items-start space-x-4">
-        <img src="/pengumuman.png" class="w-6 h-6 mt-1" alt="icon" />
-        <div>
-          <p class="text-gray-700 font-medium">
-            Timeline pendaftaran proyek "Penelitian interaksi manusia dan komputer"
-          </p>
-          <p class="text-sm text-gray-500">
-            Deadline gelombang 1: 21 Juni 2025
-          </p>
-        </div>
-      </div>
-      <div class="flex justify-end space-x-3 mt-4">
-        <button class="text-gray-500 hover:text-black">
-          <i class="fas fa-th"></i>
-        </button>
-        <button class="text-gray-500 hover:text-black">
-          <i class="fas fa-arrow-right"></i>
-        </button>
-      </div>
-    </div>
-
     <!-- Rekomendasi Proyek -->
-    <div>
-      <h2 class="text-xl font-medium text-gray-800 mb-4">Rekomendasi proyek</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <ProjectCard
+    <h2 class="text-xl be-vietnam-pro-semibold text-gray-800 pb-4 pt-8">Rekomendasi proyek</h2>
+    <div ref="scrollContainer" class="overflow-x-auto relative scroll-smooth">
+      <div class=" flex gap-4 border-4 w-max">
+        <ProjectCardMain
           title="Penelitian interaksi manusia dan komputer"
           author="Prof. Dr. Amritzal Jago Banget"
-          image="/img/project1.jpg"
+          filled="4"
+          total="8"
         />
-        <ProjectCard
+        <ProjectCardMain
           title="Robot Berkaki 4 untuk Lost & Found"
           author="Prof. Dr. Arya Jago Banget"
-          image="/img/project2.jpg"
+          filled="16"
+          total="10"
+        />
+        <ProjectCardMain 
+          title="Aksi kontol kontolan"
+          author="Ambasing"
+          filled="3"
+          total="4"
+        />
+        <ProjectCardMain 
+          title="Aksi kontol kontolan"
+          author="Ambasing"
+          filled="3"
+          total="2"
         />
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
-import Hero from './Hero.vue';
-import ProjectCard from './ProjectCard.vue';
-</script>
+
+
+<style scoped>
+.be-vietnam-pro-thin {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.be-vietnam-pro-extralight {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.be-vietnam-pro-light {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.be-vietnam-pro-regular {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.be-vietnam-pro-medium {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.be-vietnam-pro-semibold {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.be-vietnam-pro-bold {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.be-vietnam-pro-extrabold {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 800;
+  font-style: normal;
+}
+
+.be-vietnam-pro-black {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.be-vietnam-pro-thin-italic {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 100;
+  font-style: italic;
+}
+
+.be-vietnam-pro-extralight-italic {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 200;
+  font-style: italic;
+}
+
+.be-vietnam-pro-light-italic {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.be-vietnam-pro-regular-italic {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.be-vietnam-pro-medium-italic {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.be-vietnam-pro-semibold-italic {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.be-vietnam-pro-bold-italic {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.be-vietnam-pro-extrabold-italic {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 800;
+  font-style: italic;
+}
+
+.be-vietnam-pro-black-italic {
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+}
+</style>

@@ -1,5 +1,6 @@
 <script setup>
-import ProjectCard from './ProjectCard.vue';
+import ProjectCardMain from './ProjectCardMain.vue';
+import ProjectCard from './ProjectCardMain.vue';
 import { defineProps } from 'vue';
 const props = defineProps({
   title: {
@@ -12,7 +13,7 @@ const props = defineProps({
   },
   image: {
     type: String,
-      default: '/img/default-project.jpg'
+      default: '/default-project.jpg'
   },
 });
 </script>
@@ -20,7 +21,7 @@ const props = defineProps({
 <template>
     <div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <ProjectCard
+        <ProjectCardMain
           v-for="(project, index) in projects"
           :key="index"
           :title="project.title"
