@@ -3,6 +3,7 @@ console.log('Main component loaded');
 import { RouterView } from 'vue-router';
 import Navbar from './Navbar.vue';
 import Sidebar from './Sidebar.vue';
+
 // const user = JSON.parse(localStorage.getItem('user'));
 // if (!user) {
 //   window.location.href = '/login';

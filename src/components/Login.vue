@@ -18,6 +18,7 @@
     </div>
 </template>
 <script>
+    const user = JSON.parse()
     export default{
         name: 'Login'
     }

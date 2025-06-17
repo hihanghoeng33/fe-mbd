@@ -39,7 +39,7 @@ const projects = [
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="gap-y-6">
     <!-- Judul -->
     <h1 class="text-2xl be-vietnam-pro-semibold text-gray-800 pb-4">Daftar Proyek</h1>
 

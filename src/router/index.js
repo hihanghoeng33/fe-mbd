@@ -7,6 +7,7 @@ import Home from '@/components/Home.vue';
 import Projects from '@/components/Projects.vue';
 import Archive from '@/components/Archive.vue';
 import DetailProject from '@/components/DetailProject.vue';
+import HomeLecturer from '@/components/HomeLecturer.vue';
 import Profile from '@/components/Profile.vue';
 
 const router = createRouter({
@@ -47,6 +48,10 @@ const router = createRouter({
             path: '/archive',
             name: 'archive',
             component: Archive
+        },{
+            path: '/lecturerhome',
+            name: 'lecturerhome',
+            component: HomeLecturer
         },
         {
             path: '/profile',

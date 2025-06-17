@@ -48,13 +48,13 @@ const navigateToDashboard = () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F0F0F0] p-6">
-    <div class="max-w-2xl mx-auto">
+  <div class="min-h-screen max-w-screen justify-center items-center p-6 gap-y-4">
+    <div class="max-w-2xl mx-auto justify-center items-center">
       <!-- Header -->
-      <div class="mb-6">
+      <div class="mb-6 pb-4">
         <button 
           @click="navigateToDashboard"
-          class="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 transition-colors"
+          class="pb-2 flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 transition-colors"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8l8 8l1.41-1.41L7.83 13H20v-2z"/>
@@ -62,7 +62,7 @@ const navigateToDashboard = () => {
           <span class="text-sm">Kembali ke Dashboard</span>
         </button>
         
-        <h1 class="text-2xl be-vietnam-pro-semibold text-[#202326] mb-2">Profil Pengguna</h1>
+        <h1 class="text-2xl be-vietnam-pro-semibold text-[#202326] pb-1">Profil Pengguna</h1>
         <hr class="border-gray-300" />
       </div>
 
@@ -135,7 +135,7 @@ const navigateToDashboard = () => {
                 ]"
                 required
               >
-            </div>
+            </div>  
 
             <!-- Contact Info Field -->
             <div>
@@ -185,7 +185,7 @@ const navigateToDashboard = () => {
           </form>
         </div>
       </div>
-
+      <div class="h-8"></div>
       <!-- Additional Information Card -->
       <div class="bg-white shadow-sm rounded-lg mt-6 p-6">
         <h3 class="text-lg be-vietnam-pro-medium text-gray-800 mb-4">Informasi Akun</h3>
