@@ -9,7 +9,6 @@ const projects = [
     total: 6,
     categories: 'Blockchain, LLM',
     description: 'Aplikasi dompet digital dengan keamanan terjamin.'
-    // image: '/project1.jpg'
   },
   {
     title: 'Pengembangan Sistem Pembayaran Wajah',
@@ -18,7 +17,6 @@ const projects = [
     total: 8,
     categories: 'LLM, Sustainibility',
     description: 'Inovasi pembayaran menggunakan teknologi pengenalan wajah.'
-    // image: '/project2.jpg'
   },
   {
     title: 'Senolacrity',
@@ -27,7 +25,6 @@ const projects = [
     total: 7,
     categories: 'IoT, Sustainibility',
     description: 'Studi dan pengembangan metode daur ulang yang efektif.'
-    // image: '/project1.jpg'
   },
   {
     title: 'Solusi Cerdas untuk Pertanian Modern',
@@ -36,7 +33,6 @@ const projects = [
     total: 3,
     categories: 'IoT, LLM',
     description: 'Penggunaan AI untuk optimasi hasil pertanian.'
-    // image: '/project2.jpg'
   },
 
 ]
@@ -73,7 +69,6 @@ const projects = [
         :filled="project.filled"
         :total="project.total"
         :categories="project.categories"
-        :image="project.image"
         :description="project.description"
       />
     </div>

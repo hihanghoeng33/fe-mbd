@@ -7,6 +7,7 @@ import Home from '@/components/Home.vue';
 import Projects from '@/components/Projects.vue';
 import Archive from '@/components/Archive.vue';
 import DetailProject from '@/components/DetailProject.vue';
+import Profile from '@/components/Profile.vue';
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -46,6 +47,11 @@ const router = createRouter({
             path: '/archive',
             name: 'archive',
             component: Archive
+        },
+        {
+            path: '/profile',
+            name: 'profile',
+            component: Profile
         }
         ]
     }]

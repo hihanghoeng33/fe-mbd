@@ -23,7 +23,7 @@ const navigateTo = (path) => {
 //     { icon: '/home.png', label: 'Beranda', to: '/dashboard' },
 //     { icon: '/list.png', label: 'Daftar Proyek', to: '/projects' },
 //   ]
-// } else{
+// } else {
 //   window.location.href = '/login'
 // }
 const navItems = [

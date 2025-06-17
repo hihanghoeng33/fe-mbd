@@ -10,10 +10,6 @@ const props = defineProps({
     type: String,
     default: "Nama Dosen",
   },
-  image: {
-    type: String,
-    default: "/default-project.png",
-  },
   categories: {
     type: String,
     default: "",

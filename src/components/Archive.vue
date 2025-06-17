@@ -5,7 +5,6 @@ const projects = [
     title: 'Aplikasi Belanja Online Ramah Pengguna',
     author: 'Victoria Baldwin S.Kom., M.Kom.,',
     categories: 'Mobile, LLM',
-    // image: '/project1.jpg'
     stats: 'On Going',
     description: 'Aplikasi untuk memantau aktivitas fisik dan kesehatan.'
   },
@@ -13,7 +12,6 @@ const projects = [
     title: 'Monitoring Kesehatan IoT untuk Lansia',
     author: 'Joshua Nguyen S.Kom., M.Kom., Ph.D.',
     categories: 'IoT, Web',
-    // image: '/project2.jpg'
     stats: 'finished',
     description: 'Perangkat IoT untuk memantau kesehatan lansia dari jarak jauh.'
   },
@@ -21,7 +19,6 @@ const projects = [
     title: 'Analisis Tren Pasar Kripto',
     author: 'Amy Hernandez, S.Kom., M.Kom.',
     categories: 'Web, LLM',
-    // image: '/project1.jpg'
     stats: 'On going',
     description: 'Analisis data untuk memprediksi pergerakan pasar kripto.'
   },
@@ -29,7 +26,6 @@ const projects = [
     title: 'Riset Daur Ulang Limbah Plastik',
     author: 'Bradley Jones S.Kom., M.Kom.',
     categories: 'IoT, Web',
-    // image: '/project2.jpg'
     stats: 'finished',
     description: 'Studi dan pengembangan metode daur ulang yang efektif.'
   },
@@ -66,7 +62,6 @@ const projects = [
         :title="project.title"
         :author="project.author"
         :categories="project.categories"
-        :image="project.image"
         :stats="project.stats"
         :description="project.description"
       />

@@ -22,7 +22,6 @@ const props = defineProps({
           :key="index"
           :title="project.title"
           :author="project.author"
-          :image="project.image"
         />
       </div>
     </div>
