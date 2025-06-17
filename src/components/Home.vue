@@ -36,7 +36,7 @@ onBeforeUnmount(() => {
           filled="4"
           total="8"
           description="Rekomendasi film personalisasi menggunakan AI."
-          category="AI"
+          categories="AI"
         />
         <ProjectCardMain
           title="Aplikasi Manajemen Acara Kampus"
@@ -44,7 +44,7 @@ onBeforeUnmount(() => {
           filled="16"
           total="10"
           description="Mempermudah pengelolaan dan pendaftaran acara di kampus."
-          category="Robotics"
+          categories="Robotics"
         />
         <ProjectCardMain 
           title="Kampanye Lingkungan Hidup Berbasis Digital"
@@ -52,14 +52,14 @@ onBeforeUnmount(() => {
           filled="3"
           total="4"
           description="Mengelola acara kampanye lingkungan secara daring."
-          category="Database"
+          categories="Database"
         />
         <ProjectCardMain 
           title="Penelitian Alat Pemusnah Masal Studi Kasus Jawa Timur"
           author="Prof.Dr.(ENG). Imut Sasimok, S.Kom., M.Kom."
           filled="3"
           total="2"
-          category="Database"
+          categories="Database"
         />
       </div>
     </div>

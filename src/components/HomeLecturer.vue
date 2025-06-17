@@ -57,7 +57,7 @@ const handleCreateProject = () => {
           author="Prof. Dr. Amtsal Jago Banget"
           :filled="4"
           :total="8"
-          category="AI"
+          categories="AI"
         >
           <template #actions>
             <button class="bg-gray-100 items-center flex justify-center rounded-3xl gap-x-2 py-2 px-3 text-gray-800 h-10 w-22 hover:bg-gray-200 transition-colors">
@@ -80,7 +80,7 @@ const handleCreateProject = () => {
           author="Prof. Dr. Amtsal Jago Banget"
           :filled="2"
           :total="6"
-          category="Robotics"
+          categories="Robotics"
         >
           <template #actions>
             <button class="bg-gray-100 items-center flex justify-center rounded-3xl gap-x-2 py-2 px-3 text-gray-800 h-10 w-22 hover:bg-gray-200 transition-colors">
@@ -103,7 +103,7 @@ const handleCreateProject = () => {
           author="Prof. Dr. Amtsal Jago Banget"
           :filled="6"
           :total="6"
-          category="Database"
+          categories="Database"
         >
           <template #actions>
             <button class="bg-gray-100 items-center flex justify-center rounded-3xl gap-x-2 py-2 px-3 text-gray-800 h-10 w-22 hover:bg-gray-200 transition-colors">

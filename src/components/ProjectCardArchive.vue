@@ -15,8 +15,8 @@ const props = defineProps({
     default: "/default-project.png",
   },
   categories: {
-    type: Array,
-    default: () => [],
+    type: String,
+    default: "",
   },
   description: {
     type: String,
@@ -28,6 +28,11 @@ const props = defineProps({
     type: String,
     default: '/detailprojects'
   }
+});
+
+const categoriesArray = computed(() => {
+  if (!props.categories) return [];
+  return props.categories.split(',').map(category => category.trim()).filter(category => category);
 });
 
 const statColor = computed(() => {
@@ -53,7 +58,7 @@ const statColor = computed(() => {
       <div class="container pt-2">
         <div class="flex flex-wrap gap-2">
           <span
-            v-for="(category, index) in categories"
+            v-for="(category, index) in categoriesArray"
             :key="index"
             class="bg-blue-200 text-gray-700 text-xs font-medium px-2.5 py-0.5 rounded"
           >

@@ -7,7 +7,7 @@ const projects = [
     author: 'Prof.Dr.(ENG).IR. Benjamin Bryant',
     filled: 5,
     total: 6,
-    categories: ['Blockchain', 'LLM'],
+    categories: 'Blockchain, LLM',
     description: 'Aplikasi dompet digital dengan keamanan terjamin.'
     // image: '/project1.jpg'
   },
@@ -16,7 +16,7 @@ const projects = [
     author: 'Danny Mason S.Kom., M.Kom.',
     filled: 5,
     total: 8,
-    categories: ['LLM', 'Sustainibility'],
+    categories: 'LLM, Sustainibility',
     description: 'Inovasi pembayaran menggunakan teknologi pengenalan wajah.'
     // image: '/project2.jpg'
   },
@@ -25,7 +25,7 @@ const projects = [
     author: 'Heather King S.Kom., M.Kom., Ph.D.',
     filled: 4,
     total: 7,
-    categories: ['IoT', 'Sustainibility'],
+    categories: 'IoT, Sustainibility',
     description: 'Studi dan pengembangan metode daur ulang yang efektif.'
     // image: '/project1.jpg'
   },
@@ -34,7 +34,7 @@ const projects = [
     author: 'Jessica Jones S.T.,M.T.,',
     filled: 1,
     total: 3,
-    categories: ['IoT', 'LLM'],
+    categories: 'IoT, LLM',
     description: 'Penggunaan AI untuk optimasi hasil pertanian.'
     // image: '/project2.jpg'
   },

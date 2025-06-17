@@ -10,7 +10,7 @@ const props = defineProps({
     type: String,
     default: "Nama Dosen",
   },
-  category: {
+  categories: {
     type: String,
     default: "",
   },
@@ -30,6 +30,11 @@ const props = defineProps({
 });
 
 const slots = defineSlots();
+
+const categoriesArray = computed(() => {
+  if (!props.categories) return [];
+  return props.categories.split(',').map(category => category.trim()).filter(category => category);
+});
 
 const barColor = computed(() => {
   const percent = (props.filled / props.total) * 100;
@@ -54,7 +59,8 @@ const barColor = computed(() => {
       <div class="container pt-2">
         <div class="flex flex-wrap gap-2">
           <span
-            v-if="category"
+            v-for="(category, index) in categoriesArray"
+            :key="index"
             class="bg-blue-200 text-gray-700 text-xs font-medium px-2.5 py-0.5 rounded"
           >
             {{ category }}
