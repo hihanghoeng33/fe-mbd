@@ -48,7 +48,8 @@ const router = createRouter({
             path: '/archive',
             name: 'archive',
             component: Archive
-        },{
+        },
+        {
             path: '/lecturerhome',
             name: 'lecturerhome',
             component: HomeLecturer
