@@ -4,7 +4,7 @@
     class="flex items-center space-x-3 px-3 py-2 rounded-md text-gray-700 hover:bg-black/10 transition-colors"
     :class="{ 'bg-blue-200 font-semibold text-blue-600': active }"
   >
-    <img :src="icon" alt="" class="w-5 h-5" />
+    <img :src="icon" alt="" class="w-auto h-auto" />
     <span>{{ label }}</span>
   </RouterLink>
 </template>
