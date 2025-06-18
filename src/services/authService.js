@@ -70,7 +70,7 @@ export const authService = {
     console.log('/api/me full response:', response);
     console.log('/api/me user data:', response.data);
     
-    // Fix: Extract user data from response.data instead of response directly
+    // Extract user data from response.data
     const userData = {
       user_id: response.data.user_id,
       name: response.data.name,
@@ -92,7 +92,7 @@ export const authService = {
   async updateProfile(userData) {
     const response = await apiService.put('/api/me', userData);
     
-    // Fix: Extract user data from response.data
+    // Extract user data from response.data
     if (response.data) {
       const updatedUserData = {
         user_id: response.data.user_id,

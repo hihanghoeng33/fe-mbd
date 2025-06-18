@@ -60,6 +60,10 @@ class ApiService {
   async getCurrentUser() {
     return this.get('/api/me');
   }
+
+  async getProjects(page = 1) {
+    return this.get(`/api/project?page=${page}`);
+  }
 }
 
 export default new ApiService();
