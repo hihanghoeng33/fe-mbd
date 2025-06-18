@@ -76,13 +76,8 @@ const handleLogin = async () => {
     console.log('User data after login:', userData);
     
     if (userData) {
-      if (userData.role === 'dosen') {
-        console.log('Redirecting to lecturer home');
-        router.push('/lecturerhome')
-      } else {
         console.log('Redirecting to dashboard');
         router.push('/dashboard')
-      }
     } else {
       console.error('No user data available after login');
       errorMessage.value = 'Login successful but failed to load user data. Please refresh the page.';

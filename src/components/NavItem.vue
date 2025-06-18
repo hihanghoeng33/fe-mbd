@@ -13,9 +13,18 @@
 import { RouterLink } from 'vue-router';
 
 defineProps({
-  icon: String,
-  label: String,
-  to: String,
+  icon: {
+    type: String,
+    default:null
+  },
+  label: {
+    type: String,
+    default:null
+  },
+  to: {
+    type: String,
+    default:null
+  },
   active: Boolean
 })
 </script>

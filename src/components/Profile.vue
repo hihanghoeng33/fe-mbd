@@ -114,7 +114,7 @@ const handleLogout = () => {
           <!-- Logout Button -->
           <button 
             @click="handleLogout"
-            class="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+            class="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-500 hover:text-gray-50 rounded-md transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
               <path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
@@ -122,7 +122,6 @@ const handleLogout = () => {
             <span class="text-sm">Keluar</span>
           </button>
         </div>
-        <hr class="border-gray-300" />
       </div>
 
       <!-- Loading State -->
@@ -145,7 +144,7 @@ const handleLogout = () => {
       </div>
 
       <!-- Profile Card -->
-      <div v-if="formData.name" class="bg-white shadow-sm rounded-lg overflow-hidden">
+      <div v-if="formData.name" class="bg-white rounded-lg overflow-hidden">
         <!-- Profile Header -->
         <div class="bg-gradient-to-r from-cyan-500 to-blue-500 p-6 text-white">
           <div class="flex items-center gap-4">
@@ -187,7 +186,7 @@ const handleLogout = () => {
                 id="user_id"
                 :value="formData.user_id"
                 disabled
-                class="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-600 rounded-md shadow-sm text-sm"
+                class="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-600 rounded-md text-sm"
               >
               <p class="text-xs text-gray-500 mt-1">ID pengguna tidak dapat diubah</p>
             </div>
@@ -203,7 +202,7 @@ const handleLogout = () => {
                 v-model="formData.name"
                 :disabled="!isEditing || loading"
                 :class="[
-                  'w-full px-3 py-2 border rounded-md shadow-sm text-sm',
+                  'w-full px-3 py-2 border rounded-md text-sm',
                   isEditing 
                     ? 'border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500' 
                     : 'border-gray-200 bg-gray-50 text-gray-600'
@@ -223,7 +222,7 @@ const handleLogout = () => {
                 v-model="formData.email"
                 :disabled="!isEditing || loading"
                 :class="[
-                  'w-full px-3 py-2 border rounded-md shadow-sm text-sm',
+                  'w-full px-3 py-2 border rounded-md text-sm',
                   isEditing 
                     ? 'border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500' 
                     : 'border-gray-200 bg-gray-50 text-gray-600'
@@ -243,7 +242,7 @@ const handleLogout = () => {
                 v-model="formData.contact_info"
                 :disabled="!isEditing || loading"
                 :class="[
-                  'w-full px-3 py-2 border rounded-md shadow-sm text-sm',
+                  'w-full px-3 py-2 border rounded-md text-sm',
                   isEditing 
                     ? 'border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500' 
                     : 'border-gray-200 bg-gray-50 text-gray-600'
@@ -263,7 +262,7 @@ const handleLogout = () => {
                 id="role"
                 :value="formData.role === 'dosen' ? 'Dosen' : formData.role === 'mahasiswa' ? 'Mahasiswa' : 'Admin'"
                 disabled
-                class="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-600 rounded-md shadow-sm text-sm capitalize"
+                class="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-600 rounded-md text-sm capitalize"
               >
               <p class="text-xs text-gray-500 mt-1">Peran tidak dapat diubah</p>
             </div>
@@ -283,7 +282,7 @@ const handleLogout = () => {
       </div>
       <div class="h-8"></div>
       <!-- Additional Information Card -->
-      <div v-if="formData.name" class="bg-white shadow-sm rounded-lg mt-6 p-6">
+      <div v-if="formData.name" class="bg-white rounded-lg mt-6 p-6">
         <h3 class="text-lg be-vietnam-pro-medium text-gray-800 mb-4">Informasi Akun</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>

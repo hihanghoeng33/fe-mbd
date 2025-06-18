@@ -91,6 +91,21 @@ const loadProjects = async (page = 1) => {
   }
 };
 
+// const fetchProjects = async () => {
+//   loading.value = true;
+//   errorMessage.value = '';
+//   try {
+//     const result = await projectService.getAllProjects();
+//     projects.value = result.map(projectService.transformProjectData);
+//   } catch (e) {
+//     errorMessage.value = 'Gagal memuat proyek.';
+//   } finally {
+//     loading.value = false;
+//   }
+// };
+
+// onMounted(fetchProjects);
+
 const goToPage = async (page) => {
   if (
     page >= 1 &&
@@ -280,7 +295,6 @@ const refreshFilled = async (projectId) => {
       <ProjectCardMain
         v-for="(project, index) in filteredProjects"
         :key="project.project_id || index"
-        :project_id="project.project_id"
         :title="project.title"
         :author="project.author"
         :filled="project.filled"
