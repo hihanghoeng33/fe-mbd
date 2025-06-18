@@ -27,6 +27,10 @@ const props = defineProps({
     default:
       "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus deleniti saepe vel quasi quaerat voluptate magnam, laboriosam, id esse dolor, earum rerum pariatur. Exercitationem rem voluptas deserunt ipsa illo expedita.",
   },
+  project_id: {
+    type: [String, Number],
+    default: null
+  }
 });
 
 const slots = defineSlots();
@@ -100,22 +104,15 @@ const barColor = computed(() => {
           </svg>
           <span class="text-sm">Role</span>
         </button>
-        <button
+        <router-link
+          :to="`/detailprojects/${project_id}`"
           class="bg-gradient-to-t from-[#07C8F9] from-5% to-blue-500 text-white rounded-3xl items-center flex justify-center gap-x-2 py-2 px-3 h-10 w-22"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill="currentColor"
-              d="M11 17h2v-6h-2zm1-8q.425 0 .713-.288T13 8t-.288-.712T12 7t-.712.288T11 8t.288.713T12 9m0 13q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"
-            />
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M11 17h2v-6h-2zm1-8q.425 0 .713-.288T13 8t-.288-.712T12 7t-.712.288T11 8t.288.713T12 9m0 13q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"/>
           </svg>
-          <span class="text-sm">Daftar</span>
-        </button>
+          <span class="text-sm">Detail</span>
+        </router-link>
       </slot>
     </div>
   </div>

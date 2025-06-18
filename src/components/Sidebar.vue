@@ -68,7 +68,7 @@ const sideBarCondition = () => {
     navItems.value = [
       { icon: "/home.png", label: "Beranda", to: "/dashboard" },
       { icon: "/briefcase.png", label: "Daftar Proyek", to: "/projects" },
-      { icon: "/Arsip.png", label: "Arsip", to: "/arsip" },
+      { icon: "/Arsip.png", label: "Arsip", to: "/archive" },
     ];
     console.log('Set mahasiswa nav items:', navItems.value);
   } else if (user.value.role === "dosen") {
