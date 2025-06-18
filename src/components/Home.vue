@@ -156,6 +156,7 @@ const refreshProjects = async () => {
           <ProjectCardMain
             v-for="(project, index) in projects"
             :key="project.project_id || index"
+            :project_id="project.project_id"
             :title="project.title"
             :author="project.author"
             :filled="project.filled"
