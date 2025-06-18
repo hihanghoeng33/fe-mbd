@@ -229,6 +229,17 @@ export const projectService = {
     }
   },
 
+  async getProjectMilestones(projectId) {
+    try {
+      const response = await apiService.get(`/api/project/${projectId}/milestones`);
+      console.log('Project milestones response:', response);
+      return response.data && Array.isArray(response.data) ? response.data : [];
+    } catch (error) {
+      console.error('Error fetching project milestones:', error);
+      throw error;
+    }
+  },
+
   async createProject(projectData) {
     try {
       const response = await apiService.post('/api/project', projectData);

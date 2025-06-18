@@ -6,6 +6,9 @@ import { projectService } from '../services/projectService.js';
 const route = useRoute();
 const activeTab = ref("deskripsi");
 const project = ref(null);
+const milestones = ref([]);
+const milestonesLoading = ref(false);
+const milestonesError = ref('');
 const loading = ref(false);
 const error = ref('');
 
@@ -37,6 +40,25 @@ const loadProjectDetails = async () => {
     error.value = 'Gagal memuat detail proyek';
   } finally {
     loading.value = false;
+  }
+};
+
+const loadProjectMilestones = async () => {
+  if (!route.params.id) return;
+  
+  milestonesLoading.value = true;
+  milestonesError.value = '';
+  
+  try {
+    console.log('Loading milestones for project ID:', route.params.id);
+    const milestonesData = await projectService.getProjectMilestones(route.params.id);
+    milestones.value = milestonesData;
+    console.log('Loaded milestones:', milestonesData);
+  } catch (err) {
+    console.error('Error loading milestones:', err);
+    milestonesError.value = 'Gagal memuat milestones proyek';
+  } finally {
+    milestonesLoading.value = false;
   }
 };
 
@@ -72,8 +94,48 @@ const getCategoriesArray = (categories) => {
   return categories.split(',').map(cat => cat.trim()).filter(cat => cat);
 };
 
-onMounted(() => {
-  loadProjectDetails();
+const formatDateTime = (dateTimeString) => {
+  if (!dateTimeString) return '-';
+  return new Date(dateTimeString).toLocaleDateString('id-ID', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
+const getMilestoneStatusColor = (status) => {
+  if (!status) return 'bg-gray-500';
+  const statusUpper = status.toUpperCase();
+  if (statusUpper === 'COMPLETED') return 'bg-green-500';
+  if (statusUpper === 'IN_PROGRESS') return 'bg-blue-500';
+  if (statusUpper === 'PLANNED') return 'bg-yellow-500';
+  return 'bg-gray-500';
+};
+
+const getMilestoneStatusText = (status) => {
+  if (!status) return 'Tidak Diketahui';
+  const statusUpper = status.toUpperCase();
+  if (statusUpper === 'COMPLETED') return 'Selesai';
+  if (statusUpper === 'IN_PROGRESS') return 'Sedang Dikerjakan';
+  if (statusUpper === 'PLANNED') return 'Direncanakan';
+  return status;
+};
+
+const getMilestoneProgress = () => {
+  if (milestones.value.length === 0) return { completed: 0, total: 0, percentage: 0 };
+  
+  const completed = milestones.value.filter(m => m.status.toUpperCase() === 'COMPLETED').length;
+  const total = milestones.value.length;
+  const percentage = Math.round((completed / total) * 100);
+  
+  return { completed, total, percentage };
+};
+
+onMounted(async () => {
+  await loadProjectDetails();
+  await loadProjectMilestones();
 });
 </script>
 
@@ -169,14 +231,90 @@ onMounted(() => {
         <!-- Milestones Tab -->
         <div class="text-gray-700" v-else-if="activeTab === 'milestones'">
           <div class="bg-white rounded-lg p-6">
-            <h2 class="text-xl font-bold mb-4">Milestones Proyek</h2>
-            <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-              <p class="text-yellow-800">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="inline mr-2">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-xl font-bold">Milestones Proyek</h2>
+              <div v-if="milestones.length > 0" class="text-sm text-gray-600">
+                {{ getMilestoneProgress().completed }}/{{ getMilestoneProgress().total }} selesai ({{ getMilestoneProgress().percentage }}%)
+              </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div v-if="milestones.length > 0" class="mb-6">
+              <div class="bg-gray-200 rounded-full h-3">
+                <div 
+                  class="bg-green-500 h-3 rounded-full transition-all duration-300"
+                  :style="{ width: getMilestoneProgress().percentage + '%' }"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Loading State -->
+            <div v-if="milestonesLoading" class="flex items-center justify-center py-8">
+              <div class="text-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
+                <p class="text-gray-600">Memuat milestones...</p>
+              </div>
+            </div>
+
+            <!-- Error State -->
+            <div v-else-if="milestonesError" class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="mr-2">
                   <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2M13 17h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                 </svg>
-                Fitur milestones sedang dalam pengembangan.
-              </p>
+                {{ milestonesError }}
+              </div>
+            </div>
+
+            <!-- Milestones List -->
+            <div v-else-if="milestones.length > 0" class="space-y-4">
+              <div 
+                v-for="milestone in milestones" 
+                :key="milestone.milestone_id"
+                class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+              >
+                <div class="flex items-start justify-between mb-3">
+                  <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-1">{{ milestone.title }}</h3>
+                    <div class="flex items-center gap-2 mb-2">
+                      <div :class="['w-3 h-3 rounded-full', getMilestoneStatusColor(milestone.status)]"></div>
+                      <span class="text-sm font-medium">{{ getMilestoneStatusText(milestone.status) }}</span>
+                    </div>
+                  </div>
+                  <div class="text-right text-sm text-gray-500">
+                    <div v-if="milestone.due_date">
+                      <strong>Deadline:</strong><br>
+                      {{ formatDate(milestone.due_date) }}
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="milestone.description" class="mb-3">
+                  <p class="text-gray-700 text-sm leading-relaxed">{{ milestone.description }}</p>
+                </div>
+
+                <div class="flex justify-between items-center text-xs text-gray-500">
+                  <span>Dibuat: {{ formatDateTime(milestone.created_at) }}</span>
+                  <span v-if="milestone.due_date" 
+                    :class="[
+                      new Date(milestone.due_date) < new Date() && milestone.status.toUpperCase() !== 'COMPLETED' 
+                        ? 'text-red-600 font-medium' 
+                        : 'text-gray-500'
+                    ]"
+                  >
+                    {{ new Date(milestone.due_date) < new Date() && milestone.status.toUpperCase() !== 'COMPLETED' ? 'Terlambat' : '' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty State -->
+            <div v-else class="text-center py-12">
+              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" class="mx-auto mb-4 text-gray-400">
+                <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2M7 13.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5s1.5.67 1.5 1.5s-.67 1.5-1.5 1.5m5 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5s1.5.67 1.5 1.5s-.67 1.5-1.5 1.5m5 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5s1.5.67 1.5 1.5s-.67 1.5-1.5 1.5"/>
+              </svg>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Milestones</h3>
+              <p class="text-gray-500">Proyek ini belum memiliki milestones yang didefinisikan.</p>
             </div>
           </div>
         </div>
