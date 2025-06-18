@@ -251,6 +251,54 @@ export const projectService = {
     }
   },
 
+  async getProjectMembers(projectId) {
+    try {
+      const response = await apiService.get(`/api/project/${projectId}/members`);
+      console.log('Project members full response:', response);
+      console.log('Response data:', response.data);
+      console.log('Response data type:', typeof response.data);
+      
+      // Handle different response formats
+      if (response.data === null || response.data === undefined) {
+        console.log('Response data is null/undefined, checking response directly');
+        if (Array.isArray(response)) {
+          console.log('Response itself is an array');
+          return response;
+        }
+        return [];
+      }
+      
+      if (Array.isArray(response.data)) {
+        console.log('Response.data is an array with length:', response.data.length);
+        return response.data;
+      }
+      
+      if (response.data && Array.isArray(response.data.data)) {
+        console.log('Response.data.data is an array');
+        return response.data.data;
+      }
+      
+      // If response structure is different, try to find the array
+      if (typeof response.data === 'object') {
+        console.log('Response.data is an object, keys:', Object.keys(response.data));
+        // Look for array properties
+        for (const key of Object.keys(response.data)) {
+          if (Array.isArray(response.data[key])) {
+            console.log(`Found array in response.data.${key}`);
+            return response.data[key];
+          }
+        }
+      }
+      
+      console.warn('Unexpected response format for project members:', response);
+      return [];
+    } catch (error) {
+      console.error('Error fetching project members:', error);
+      console.error('Error details:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+
   async createProject(projectData) {
     try {
       const response = await apiService.post('/api/project', projectData);

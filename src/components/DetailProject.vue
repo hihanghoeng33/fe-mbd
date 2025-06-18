@@ -12,6 +12,9 @@ const milestonesError = ref('');
 const documents = ref([]);
 const documentsLoading = ref(false);
 const documentsError = ref('');
+const members = ref([]);
+const membersLoading = ref(false);
+const membersError = ref('');
 const loading = ref(false);
 const error = ref('');
 
@@ -81,6 +84,26 @@ const loadProjectDocuments = async () => {
     documentsError.value = 'Gagal memuat dokumen proyek';
   } finally {
     documentsLoading.value = false;
+  }
+};
+
+const loadProjectMembers = async () => {
+  if (!route.params.id) return;
+  
+  membersLoading.value = true;
+  membersError.value = '';
+  
+  try {
+    console.log('Loading members for project ID:', route.params.id);
+    const membersData = await projectService.getProjectMembers(route.params.id);
+    members.value = membersData || []; // Ensure it's always an array
+    console.log('Loaded members:', membersData);
+  } catch (err) {
+    console.error('Error loading members:', err);
+    // Always just set empty array, never show error
+    members.value = [];
+  } finally {
+    membersLoading.value = false;
   }
 };
 
@@ -185,10 +208,41 @@ const downloadDocument = (document) => {
   }
 };
 
+const getRoleText = (role) => {
+  if (!role) return 'Anggota';
+  const roleUpper = role.toUpperCase();
+  if (roleUpper === 'MANAGER') return 'Manajer';
+  if (roleUpper === 'MEMBER') return 'Anggota';
+  return role;
+};
+
+const getRoleColor = (role) => {
+  if (!role) return 'bg-gray-500';
+  const roleUpper = role.toUpperCase();
+  if (roleUpper === 'MANAGER') return 'bg-purple-500';
+  if (roleUpper === 'MEMBER') return 'bg-blue-500';
+  return 'bg-gray-500';
+};
+
+const getMemberStatusText = (isActive) => {
+  return isActive ? 'Aktif' : 'Tidak Aktif';
+};
+
+const getMemberStatusColor = (isActive) => {
+  return isActive ? 'bg-green-500' : 'bg-red-500';
+};
+
+const getManagersAndMembers = () => {
+  const managers = members.value.filter(m => m.role_project?.toUpperCase() === 'MANAGER');
+  const membersList = members.value.filter(m => m.role_project?.toUpperCase() === 'MEMBER');
+  return { managers, membersList };
+};
+
 onMounted(async () => {
   await loadProjectDetails();
   await loadProjectMilestones();
   await loadProjectDocuments();
+  await loadProjectMembers();
 });
 </script>
 
@@ -473,14 +527,190 @@ onMounted(async () => {
         <!-- Participants Tab -->
         <div class="text-gray-700" v-else-if="activeTab === 'anggota'">
           <div class="bg-white rounded-lg p-6">
-            <h2 class="text-xl font-bold mb-4">Anggota Proyek</h2>
-            <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-              <p class="text-yellow-800">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="inline mr-2">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-xl font-bold">Anggota Proyek</h2>
+              <div v-if="members.length > 0" class="text-sm text-gray-600">
+                {{ members.length }} anggota
+              </div>
+            </div>
+
+            <!-- Loading State -->
+            <div v-if="membersLoading" class="flex items-center justify-center py-8">
+              <div class="text-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
+                <p class="text-gray-600">Memuat anggota...</p>
+              </div>
+            </div>
+
+            <!-- Error State -->
+            <div v-else-if="membersError" class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="mr-2">
                   <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2M13 17h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                 </svg>
-                Fitur anggota sedang dalam pengembangan.
-              </p>
+                {{ membersError }}
+              </div>
+            </div>
+
+            <!-- Members List -->
+            <div v-else-if="members.length > 0" class="space-y-6">
+              <!-- Project Managers Section -->
+              <div v-if="getManagersAndMembers().managers.length > 0" class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22L12 18.77L5.82 22L7 14.14l-5-4.87l6.91-1.01L12 2z"/>
+                  </svg>
+                  {{ getManagersAndMembers().managers.length === 1 ? 'Manajer Proyek' : `Manajer Proyek (${getManagersAndMembers().managers.length})` }}
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div 
+                    v-for="manager in getManagersAndMembers().managers" 
+                    :key="manager.project_member_id"
+                    class="border border-purple-200 rounded-lg p-4 bg-purple-50"
+                  >
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center overflow-hidden">
+                          <img src="/profile-picture.png" alt="Manager Profile" class="w-10 h-10 rounded-full">
+                        </div>
+                        <div>
+                          <h4 class="font-semibold text-gray-800">ID: {{ manager.user_id }}</h4>
+                          <div class="flex items-center gap-3 text-sm text-gray-600 mt-1">
+                            <span class="flex items-center gap-1">
+                              <div :class="['w-2 h-2 rounded-full', getRoleColor(manager.role_project)]"></div>
+                              {{ getRoleText(manager.role_project) }}
+                            </span>
+                            <span class="flex items-center gap-1">
+                              <div :class="['w-2 h-2 rounded-full', getMemberStatusColor(manager.is_active)]"></div>
+                              {{ getMemberStatusText(manager.is_active) }}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-3">
+                      Bergabung: {{ formatDateTime(manager.joined_at) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Team Members Section -->
+              <div v-if="getManagersAndMembers().membersList.length > 0">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M16 4c0-1.11.89-2 2-2s2 .89 2 2s-.89 2-2 2s-2-.89-2-2M21 16v-2c0-1.1-.9-2-2-2h-2v7h2v-2.5l1.8 3H23l-1.8-3zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5M5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2s-2 .89-2 2s.89 2 2 2M7.5 22v-7H9V9c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v6h1.5v7h4zm6.5-7v7h1.5v-7h-1.5z"/>
+                  </svg>
+                  Anggota Tim ({{ getManagersAndMembers().membersList.length }})
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div 
+                    v-for="member in getManagersAndMembers().membersList" 
+                    :key="member.project_member_id"
+                    class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                  >
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                          <img src="/profile-picture.png" alt="Member Profile" class="w-8 h-8 rounded-full">
+                        </div>
+                        <div>
+                          <h4 class="font-semibold text-gray-800">ID: {{ member.user_id }}</h4>
+                          <div class="flex items-center gap-3 text-sm text-gray-600 mt-1">
+                            <span class="flex items-center gap-1">
+                              <div :class="['w-2 h-2 rounded-full', getRoleColor(member.role_project)]"></div>
+                              {{ getRoleText(member.role_project) }}
+                            </span>
+                            <span class="flex items-center gap-1">
+                              <div :class="['w-2 h-2 rounded-full', getMemberStatusColor(member.is_active)]"></div>
+                              {{ getMemberStatusText(member.is_active) }}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-3">
+                      Bergabung: {{ formatDateTime(member.joined_at) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- All Members as One List (if no role separation needed) -->
+              <div v-if="getManagersAndMembers().managers.length === 0 && getManagersAndMembers().membersList.length === 0" class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M16 4c0-1.11.89-2 2-2s2 .89 2 2s-.89 2-2 2s-2-.89-2-2M21 16v-2c0-1.1-.9-2-2-2h-2v7h2v-2.5l1.8 3H23l-1.8-3zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5M5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2s-2 .89-2 2s.89 2 2 2M7.5 22v-7H9V9c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v6h1.5v7h4zm6.5-7v7h1.5v-7h-1.5z"/>
+                  </svg>
+                  Semua Anggota ({{ members.length }})
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div 
+                    v-for="member in members" 
+                    :key="member.project_member_id"
+                    class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                  >
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-3">
+                        <div :class="[
+                          'w-10 h-10 rounded-full flex items-center justify-center text-white font-bold',
+                          member.role_project?.toUpperCase() === 'MANAGER' ? 'bg-purple-500' : 'bg-blue-500'
+                        ]">
+                          {{ member.user_id?.toString().slice(-2) || 'A' }}
+                        </div>
+                        <div>
+                          <h4 class="font-semibold text-gray-800">ID: {{ member.user_id }}</h4>
+                          <div class="flex items-center gap-3 text-sm text-gray-600 mt-1">
+                            <span class="flex items-center gap-1">
+                              <div :class="['w-2 h-2 rounded-full', getRoleColor(member.role_project)]"></div>
+                              {{ getRoleText(member.role_project) }}
+                            </span>
+                            <span class="flex items-center gap-1">
+                              <div :class="['w-2 h-2 rounded-full', getMemberStatusColor(member.is_active)]"></div>
+                              {{ getMemberStatusText(member.is_active) }}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-3">
+                      Bergabung: {{ formatDateTime(member.joined_at) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Summary Stats -->
+              <div class="bg-gray-50 rounded-lg p-4 mt-6">
+                <h3 class="text-sm font-semibold text-gray-700 mb-3">Ringkasan Anggota</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                  <div class="bg-white rounded-lg p-3">
+                    <div class="text-2xl font-bold text-blue-600">{{ members.length }}</div>
+                    <div class="text-xs text-gray-600">Total Anggota</div>
+                  </div>
+                  <div class="bg-white rounded-lg p-3">
+                    <div class="text-2xl font-bold text-purple-600">{{ getManagersAndMembers().managers.length }}</div>
+                    <div class="text-xs text-gray-600">Manajer</div>
+                  </div>
+                  <div class="bg-white rounded-lg p-3">
+                    <div class="text-2xl font-bold text-green-600">{{ getManagersAndMembers().membersList.length }}</div>
+                    <div class="text-xs text-gray-600">Anggota Tim</div>
+                  </div>
+                  <div class="bg-white rounded-lg p-3">
+                    <div class="text-2xl font-bold text-emerald-600">{{ members.filter(m => m.is_active).length }}</div>
+                    <div class="text-xs text-gray-600">Aktif</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty State -->
+            <div v-else class="text-center py-12">
+              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" class="mx-auto mb-4 text-gray-400">
+                <path fill="currentColor" d="M16 4c0-1.11.89-2 2-2s2 .89 2 2s-.89 2-2 2s-2-.89-2-2M21 16v-2c0-1.1-.9-2-2-2h-2v7h2v-2.5l1.8 3H23l-1.8-3zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5M5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2s-2 .89-2 2s.89 2 2 2M7.5 22v-7H9V9c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v6h1.5v7h4zm6.5-7v7h1.5v-7h-1.5z"/>
+              </svg>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Anggota</h3>
+              <p class="text-gray-500">Proyek ini belum memiliki anggota yang terdaftar.</p>
             </div>
           </div>
         </div>
