@@ -1,5 +1,5 @@
 const API_BASE_URL = 'https://fp-mbd-backend-production-7568.up.railway.app';
-
+console.log('Halo dari api');
 class ApiService {
   constructor() {
     this.baseURL = API_BASE_URL;

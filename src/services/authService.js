@@ -1,4 +1,9 @@
 import apiService from './api.js';
+console.log('Halo dari authService');
+const TOKEN_KEY = 'token';
+const USER_KEY = 'user';
+const TOKEN_TIMESTAMP_KEY = 'token_timestamp';
+const TOKEN_EXPIRY = 8 * 60 * 60 * 1000; // 8 hours in ms
 
 export const authService = {
   async login(email, password) {
@@ -27,7 +32,6 @@ export const authService = {
     } else {
       console.error('No access token in login response');
     }
-    
     return response;
   },
 
@@ -104,7 +108,6 @@ export const authService = {
       localStorage.setItem('user', JSON.stringify(updatedUserData));
       return updatedUserData;
     }
-    
     return response;
   },
 
@@ -115,7 +118,7 @@ export const authService = {
   },
 
   getCurrentUser() {
-    const user = localStorage.getItem('user');
+    const user = localStorage.getItem(USER_KEY);
     console.log('Getting current user from localStorage:', user);
     return user ? JSON.parse(user) : null;
   },

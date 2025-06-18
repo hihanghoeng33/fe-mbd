@@ -70,17 +70,16 @@ const sideBarCondition = () => {
       { icon: "/briefcase.png", label: "Daftar Proyek", to: "/projects" },
       { icon: "/Arsip.png", label: "Arsip", to: "/archive" },
     ];
-    console.log('Set mahasiswa nav items:', navItems.value);
-  } else if (user.value.role === "dosen") {
+  }else if (user.value.role === "dosen") {
     navItems.value = [
-      { icon: "/home.png", label: "Beranda", to: "/dashboard" },
-      { icon: "/kelola-proyek.png", label: "Daftar Proyek", to: "/projectsmanagement" },
-      { icon: "/Arsip.png", label: "Arsip", to: "/arsivedosen" },
+      { icon: "/home.png", label: "Beranda", to: "/lecturerhome" },
+      { icon: "/kelola-proyek.png", label: "Kolola Proyek", to: "/projectsmanagement" },
+      { icon: "/Arsip.png", label: "Arsip", to: "/arsipdosen" },
     ];
     console.log('Set dosen nav items:', navItems.value);
   } else if (user.value.role === "admin") {
     navItems.value = [
-      { icon: "/home.png", label: "Beranda", to: "/admin-dashboard" },
+      { icon: "/home.png", label: "Beranda", to: "/adminhome" },
       { icon: "/list.png", label: "Daftar Proyek", to: "/listofproject" },
     ];
     console.log('Set admin nav items:', navItems.value);
@@ -109,11 +108,11 @@ watch(navItems, (newNavItems) => {
       <NavItem
         v-for="(item, index) in navItems"
         :key="index"
+        @click="navigateTo(item.to)"
         :icon="item.icon"
         :label="item.label"
         :to="item.to"
         :active="item.to === $route.path"
-        @click="navigateTo(item.to)"
         class="flex gap-2"
       />
     </nav>
