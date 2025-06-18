@@ -74,7 +74,7 @@ const sideBarCondition = () => {
     navItems.value = [
       { icon: "/home.png", label: "Beranda", to: "/lecturerhome" },
       { icon: "/kelola-proyek.png", label: "Kolola Proyek", to: "/projectsmanagement" },
-      { icon: "/Arsip.png", label: "Arsip", to: "/arsipdosen" },
+      { icon: "/Arsip.png", label: "Arsip", to: "/lecturerarchive" },
     ];
     console.log('Set dosen nav items:', navItems.value);
   } else if (user.value.role === "admin") {

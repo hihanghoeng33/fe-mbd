@@ -13,6 +13,7 @@ import Profile from '@/components/Profile.vue';
 import ProjectsManagement from '@/components/ProjectsManagement.vue';
 import HomeAdmin from '@/components/HomeAdmin.vue';
 import ListofProject from '@/components/ListofProject.vue';
+import LecturerArchive from '@/components/LecturerArchive.vue';
 
 
 const router = createRouter({
@@ -84,6 +85,11 @@ const router = createRouter({
             path: '/listofproject',
             name: 'listofprojectadmin',
             component: ListofProject
+        },
+        {
+            path: '/lecturerarchive',
+            name: 'lecturerarchive',
+            component: LecturerArchive
         }
         ]
     }]
