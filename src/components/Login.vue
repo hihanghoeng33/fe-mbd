@@ -76,8 +76,18 @@ const handleLogin = async () => {
     console.log('User data after login:', userData);
     
     if (userData) {
+      if(userData.role==='mahasiswa'){
         console.log('Redirecting to dashboard');
-        router.push('/dashboard')
+        router.push('/dashboard');
+      }else if(userData.role==='dosen'){
+        console.log('Redirecting to lecturerhome');
+        router.push('/lecturerhome');
+      }else if(userData.role==='admin'){
+        console.log('redirecting to admin page');
+        router.push('/adminhome')
+      }
+        
+        
     } else {
       console.error('No user data available after login');
       errorMessage.value = 'Login successful but failed to load user data. Please refresh the page.';
