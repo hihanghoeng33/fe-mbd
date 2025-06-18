@@ -9,6 +9,9 @@ const project = ref(null);
 const milestones = ref([]);
 const milestonesLoading = ref(false);
 const milestonesError = ref('');
+const documents = ref([]);
+const documentsLoading = ref(false);
+const documentsError = ref('');
 const loading = ref(false);
 const error = ref('');
 
@@ -16,7 +19,7 @@ const tabs = [
   { name: "Deskripsi", value: "deskripsi" },
   { name: "Milestones", value: "milestones" },
   { name: "Dokumen", value: "dokumen" },
-  { name: "Peserta", value: "peserta" },
+  { name: "Anggota", value: "anggota" },
 ];
 
 const loadProjectDetails = async () => {
@@ -59,6 +62,25 @@ const loadProjectMilestones = async () => {
     milestonesError.value = 'Gagal memuat milestones proyek';
   } finally {
     milestonesLoading.value = false;
+  }
+};
+
+const loadProjectDocuments = async () => {
+  if (!route.params.id) return;
+  
+  documentsLoading.value = true;
+  documentsError.value = '';
+  
+  try {
+    console.log('Loading documents for project ID:', route.params.id);
+    const documentsData = await projectService.getProjectDocuments(route.params.id);
+    documents.value = documentsData;
+    console.log('Loaded documents:', documentsData);
+  } catch (err) {
+    console.error('Error loading documents:', err);
+    documentsError.value = 'Gagal memuat dokumen proyek';
+  } finally {
+    documentsLoading.value = false;
   }
 };
 
@@ -133,9 +155,40 @@ const getMilestoneProgress = () => {
   return { completed, total, percentage };
 };
 
+const getDocumentIcon = (documentType) => {
+  if (!documentType) return '📄';
+  const type = documentType.toLowerCase();
+  if (type.includes('pdf')) return '📄';
+  if (type.includes('word') || type.includes('doc')) return '📝';
+  if (type.includes('excel') || type.includes('sheet')) return '📊';
+  if (type.includes('powerpoint') || type.includes('presentation')) return '📑';
+  if (type.includes('image') || type.includes('png') || type.includes('jpg') || type.includes('jpeg')) return '🖼️';
+  if (type.includes('video') || type.includes('mp4') || type.includes('avi')) return '🎥';
+  return '📄';
+};
+
+const getDocumentTypeText = (documentType) => {
+  if (!documentType) return 'Dokumen';
+  const type = documentType.toLowerCase();
+  if (type.includes('pdf')) return 'PDF';
+  if (type.includes('word') || type.includes('doc')) return 'Word Document';
+  if (type.includes('excel') || type.includes('sheet')) return 'Excel Spreadsheet';
+  if (type.includes('powerpoint') || type.includes('presentation')) return 'PowerPoint';
+  if (type.includes('image')) return 'Gambar';
+  if (type.includes('video')) return 'Video';
+  return documentType;
+};
+
+const downloadDocument = (document) => {
+  if (document.file_url) {
+    window.open(document.file_url, '_blank');
+  }
+};
+
 onMounted(async () => {
   await loadProjectDetails();
   await loadProjectMilestones();
+  await loadProjectDocuments();
 });
 </script>
 
@@ -322,28 +375,111 @@ onMounted(async () => {
         <!-- Documents Tab -->
         <div class="text-gray-700" v-else-if="activeTab === 'dokumen'">
           <div class="bg-white rounded-lg p-6">
-            <h2 class="text-xl font-bold mb-4">Dokumen Proyek</h2>
-            <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-              <p class="text-yellow-800">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="inline mr-2">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-xl font-bold">Dokumen Proyek</h2>
+              <div v-if="documents.length > 0" class="text-sm text-gray-600">
+                {{ documents.length }} dokumen tersedia
+              </div>
+            </div>
+
+            <!-- Loading State -->
+            <div v-if="documentsLoading" class="flex items-center justify-center py-8">
+              <div class="text-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
+                <p class="text-gray-600">Memuat dokumen...</p>
+              </div>
+            </div>
+
+            <!-- Error State -->
+            <div v-else-if="documentsError" class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="mr-2">
                   <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2M13 17h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                 </svg>
-                Fitur dokumen sedang dalam pengembangan.
-              </p>
+                {{ documentsError }}
+              </div>
+            </div>
+
+            <!-- Documents List -->
+            <div v-else-if="documents.length > 0" class="space-y-4">
+              <div 
+                v-for="document in documents" 
+                :key="document.document_id"
+                class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+              >
+                <div class="flex items-start justify-between">
+                  <div class="flex items-start gap-4 flex-1">
+                    <!-- Document Icon -->
+                    <div class="text-3xl">{{ getDocumentIcon(document.document_type) }}</div>
+                    
+                    <!-- Document Info -->
+                    <div class="flex-1 min-w-0">
+                      <h3 class="text-lg font-semibold text-gray-800 mb-1 truncate">{{ document.title }}</h3>
+                      
+                      <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-2">
+                        <span class="flex items-center gap-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                          </svg>
+                          {{ getDocumentTypeText(document.document_type) }}
+                        </span>
+                      </div>
+                      
+                      <div class="text-xs text-gray-500">
+                        Diunggah: {{ formatDateTime(document.created_at) }}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Actions -->
+                  <div class="flex items-center gap-2 ml-4">
+                    <button 
+                      @click="downloadDocument(document)"
+                      class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+                      title="Unduh dokumen"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7l7-7z"/>
+                      </svg>
+                      Unduh
+                    </button>
+                    
+                    <button 
+                      @click="window.open(document.file_url, '_blank')"
+                      class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors"
+                      title="Lihat dokumen"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5s5 2.24 5 5s-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3s3-1.34 3-3s-1.34-3-3-3z"/>
+                      </svg>
+                      Lihat
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty State -->
+            <div v-else class="text-center py-12">
+              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" class="mx-auto mb-4 text-gray-400">
+                <path fill="currentColor" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
+              </svg>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Dokumen</h3>
+              <p class="text-gray-500">Proyek ini belum memiliki dokumen yang diunggah.</p>
             </div>
           </div>
         </div>
 
         <!-- Participants Tab -->
-        <div class="text-gray-700" v-else-if="activeTab === 'peserta'">
+        <div class="text-gray-700" v-else-if="activeTab === 'anggota'">
           <div class="bg-white rounded-lg p-6">
-            <h2 class="text-xl font-bold mb-4">Peserta Proyek</h2>
+            <h2 class="text-xl font-bold mb-4">Anggota Proyek</h2>
             <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
               <p class="text-yellow-800">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="inline mr-2">
                   <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2M13 17h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                 </svg>
-                Fitur peserta sedang dalam pengembangan.
+                Fitur anggota sedang dalam pengembangan.
               </p>
             </div>
           </div>

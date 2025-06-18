@@ -240,6 +240,17 @@ export const projectService = {
     }
   },
 
+  async getProjectDocuments(projectId) {
+    try {
+      const response = await apiService.get(`/api/project/${projectId}/documents`);
+      console.log('Project documents response:', response);
+      return response.data?.documents && Array.isArray(response.data.documents) ? response.data.documents : [];
+    } catch (error) {
+      console.error('Error fetching project documents:', error);
+      throw error;
+    }
+  },
+
   async createProject(projectData) {
     try {
       const response = await apiService.post('/api/project', projectData);
