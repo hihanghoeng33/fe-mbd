@@ -56,6 +56,10 @@ class ApiService {
   delete(endpoint, options = {}) {
     return this.request(endpoint, { method: 'DELETE', ...options });
   }
+
+  async getCurrentUser() {
+    return this.get('/api/me');
+  }
 }
 
 export default new ApiService();

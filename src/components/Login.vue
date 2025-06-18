@@ -65,13 +65,30 @@ const handleLogin = async () => {
   errorMessage.value = ''
   
   try {
+    console.log('Attempting login...');
     const response = await authService.login(formData.value.email, formData.value.password)
-    if (response.role === 'dosen') {
+    console.log('Login response received:', response);
+    
+    // Wait a bit for user data to be stored
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    const userData = authService.getCurrentUser()
+    console.log('User data after login:', userData);
+    
+    if (userData) {
+      if (userData.role === 'dosen') {
+        console.log('Redirecting to lecturer home');
         router.push('/lecturerhome')
-    } else {
+      } else {
+        console.log('Redirecting to dashboard');
         router.push('/dashboard')
+      }
+    } else {
+      console.error('No user data available after login');
+      errorMessage.value = 'Login successful but failed to load user data. Please refresh the page.';
     }
   } catch (error) {
+    console.error('Login error:', error);
     errorMessage.value = error.message || 'Login failed. Please try again.'
   } finally {
     loading.value = false

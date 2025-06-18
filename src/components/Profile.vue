@@ -1,10 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { authService } from '../services/authService.js'
 
 const router = useRouter()
 
 const formData = ref({
+  user_id: '',
   name: '',
   email: '',
   contact_info: '',
@@ -13,18 +15,29 @@ const formData = ref({
 
 const isEditing = ref(false)
 const originalData = ref({})
+const loading = ref(false)
+const errorMessage = ref('')
+const successMessage = ref('')
 
-onMounted(() => {
-  const mockUserData = {
-    name: 'Prof. Dr. Amtsal Jago Banget',
-    email: '6010000001@student.its.ac.id',
-    contact_info: '001-503-915-0536',
-    role: 'dosen'
-  }
-  
-  formData.value = { ...mockUserData }
-  originalData.value = { ...mockUserData }
+onMounted(async () => {
+  await fetchUserProfile()
 })
+
+const fetchUserProfile = async () => {
+  loading.value = true
+  errorMessage.value = ''
+  
+  try {
+    const userData = await authService.getCurrentUserProfile()
+    formData.value = { ...userData }
+    originalData.value = { ...userData }
+  } catch (error) {
+    errorMessage.value = 'Failed to load profile data'
+    console.error('Error fetching profile:', error)
+  } finally {
+    loading.value = false
+  }
+}
 
 const toggleEdit = () => {
   if (isEditing.value) {
@@ -33,13 +46,35 @@ const toggleEdit = () => {
   isEditing.value = !isEditing.value
 }
 
-const saveProfile = () => {
-  console.log('Saving profile:', formData.value)
+const saveProfile = async () => {
+  loading.value = true
+  errorMessage.value = ''
+  successMessage.value = ''
   
-  originalData.value = { ...formData.value }
-  isEditing.value = false
-  
-  alert('Profil berhasil diperbarui!')
+  try {
+    const updateData = {
+      name: formData.value.name,
+      email: formData.value.email,
+      contact_info: formData.value.contact_info
+    }
+    
+    await authService.updateProfile(updateData)
+    
+    originalData.value = { ...formData.value }
+    isEditing.value = false
+    
+    successMessage.value = 'Profil berhasil diperbarui!'
+    
+    setTimeout(() => {
+      successMessage.value = ''
+    }, 3000)
+    
+  } catch (error) {
+    errorMessage.value = error.message || 'Failed to update profile'
+    console.error('Error updating profile:', error)
+  } finally {
+    loading.value = false
+  }
 }
 
 const navigateToDashboard = () => {
@@ -61,13 +96,31 @@ const navigateToDashboard = () => {
           </svg>
           <span class="text-sm">Kembali ke Dashboard</span>
         </button>
-        
         <h1 class="text-2xl be-vietnam-pro-semibold text-[#202326] pb-1">Profil Pengguna</h1>
         <hr class="border-gray-300" />
       </div>
 
+      <!-- Loading State -->
+      <div v-if="loading && !formData.name" class="bg-white shadow-sm rounded-lg p-6">
+        <div class="animate-pulse">
+          <div class="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div class="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+          <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div v-if="errorMessage" class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Success Message -->
+      <div v-if="successMessage" class="bg-green-50 border border-green-200 text-green-700 p-4 rounded-lg mb-6">
+        {{ successMessage }}
+      </div>
+
       <!-- Profile Card -->
-      <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+      <div v-if="formData.name" class="bg-white shadow-sm rounded-lg overflow-hidden">
         <!-- Profile Header -->
         <div class="bg-gradient-to-r from-cyan-500 to-blue-500 p-6 text-white">
           <div class="flex items-center gap-4">
@@ -76,7 +129,8 @@ const navigateToDashboard = () => {
             </div>
             <div>
               <h2 class="text-xl font-semibold">{{ formData.name }}</h2>
-              <p class="text-blue-100 capitalize">{{ formData.role }}</p>
+              <p class="text-blue-100 capitalize">{{ formData.role === 'dosen' ? 'Dosen' : formData.role === 'mahasiswa' ? 'Mahasiswa' : 'Admin' }}</p>
+              <p class="text-blue-100 text-sm">{{ formData.user_id }}</p>
             </div>
           </div>
         </div>
@@ -87,8 +141,9 @@ const navigateToDashboard = () => {
             <h3 class="text-lg be-vietnam-pro-medium text-gray-800">Informasi Pribadi</h3>
             <button
               @click="toggleEdit"
+              :disabled="loading"
               :class="[
-                'px-4 py-2 rounded-md text-sm font-medium transition-colors',
+                'px-4 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50',
                 isEditing ? 'bg-gray-500 hover:bg-gray-600 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'
               ]"
             >
@@ -97,6 +152,21 @@ const navigateToDashboard = () => {
           </div>
 
           <form @submit.prevent="saveProfile" class="space-y-6">
+            <!-- User ID Field (Read-only) -->
+            <div>
+              <label for="user_id" class="block text-sm font-medium text-gray-700 mb-2">
+                ID Pengguna
+              </label>
+              <input
+                type="text"
+                id="user_id"
+                :value="formData.user_id"
+                disabled
+                class="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-600 rounded-md shadow-sm text-sm"
+              >
+              <p class="text-xs text-gray-500 mt-1">ID pengguna tidak dapat diubah</p>
+            </div>
+
             <!-- Name Field -->
             <div>
               <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
@@ -106,7 +176,7 @@ const navigateToDashboard = () => {
                 type="text"
                 id="name"
                 v-model="formData.name"
-                :disabled="!isEditing"
+                :disabled="!isEditing || loading"
                 :class="[
                   'w-full px-3 py-2 border rounded-md shadow-sm text-sm',
                   isEditing 
@@ -126,7 +196,7 @@ const navigateToDashboard = () => {
                 type="email"
                 id="email"
                 v-model="formData.email"
-                :disabled="!isEditing"
+                :disabled="!isEditing || loading"
                 :class="[
                   'w-full px-3 py-2 border rounded-md shadow-sm text-sm',
                   isEditing 
@@ -146,7 +216,7 @@ const navigateToDashboard = () => {
                 type="text"
                 id="contact_info"
                 v-model="formData.contact_info"
-                :disabled="!isEditing"
+                :disabled="!isEditing || loading"
                 :class="[
                   'w-full px-3 py-2 border rounded-md shadow-sm text-sm',
                   isEditing 
@@ -177,9 +247,10 @@ const navigateToDashboard = () => {
             <div v-if="isEditing" class="flex gap-3 pt-4">
               <button
                 type="submit"
-                class="flex-1 bg-blue-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300"
+                :disabled="loading"
+                class="flex-1 bg-blue-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 disabled:opacity-50"
               >
-                Simpan Perubahan
+                {{ loading ? 'Menyimpan...' : 'Simpan Perubahan' }}
               </button>
             </div>
           </form>
@@ -187,7 +258,7 @@ const navigateToDashboard = () => {
       </div>
       <div class="h-8"></div>
       <!-- Additional Information Card -->
-      <div class="bg-white shadow-sm rounded-lg mt-6 p-6">
+      <div v-if="formData.name" class="bg-white shadow-sm rounded-lg mt-6 p-6">
         <h3 class="text-lg be-vietnam-pro-medium text-gray-800 mb-4">Informasi Akun</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
