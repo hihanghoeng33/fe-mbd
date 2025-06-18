@@ -80,6 +80,17 @@ const saveProfile = async () => {
 const navigateToDashboard = () => {
   router.push('/dashboard')
 }
+
+// Add logout functionality
+const handleLogout = () => {
+  try {
+    authService.logout()
+    console.log('User logged out from profile page')
+    router.push('/login')
+  } catch (error) {
+    console.error('Error during logout:', error)
+  }
+}
 </script>
 
 <template>
@@ -96,7 +107,21 @@ const navigateToDashboard = () => {
           </svg>
           <span class="text-sm">Kembali ke Dashboard</span>
         </button>
-        <h1 class="text-2xl be-vietnam-pro-semibold text-[#202326] pb-1">Profil Pengguna</h1>
+        <div class="flex justify-between items-center">
+          <div>
+            <h1 class="text-2xl be-vietnam-pro-semibold text-[#202326] pb-1">Profil Pengguna</h1>
+          </div>
+          <!-- Logout Button -->
+          <button 
+            @click="handleLogout"
+            class="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+            </svg>
+            <span class="text-sm">Keluar</span>
+          </button>
+        </div>
         <hr class="border-gray-300" />
       </div>
 
@@ -284,57 +309,5 @@ const navigateToDashboard = () => {
 </template>
 
 <style scoped>
-.be-vietnam-pro-thin {
-  font-family: "Be Vietnam Pro", sans-serif;
-  font-weight: 100;
-  font-style: normal;
-}
-
-.be-vietnam-pro-extralight {
-  font-family: "Be Vietnam Pro", sans-serif;
-  font-weight: 200;
-  font-style: normal;
-}
-
-.be-vietnam-pro-light {
-  font-family: "Be Vietnam Pro", sans-serif;
-  font-weight: 300;
-  font-style: normal;
-}
-
-.be-vietnam-pro-regular {
-  font-family: "Be Vietnam Pro", sans-serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.be-vietnam-pro-medium {
-  font-family: "Be Vietnam Pro", sans-serif;
-  font-weight: 500;
-  font-style: normal;
-}
-
-.be-vietnam-pro-semibold {
-  font-family: "Be Vietnam Pro", sans-serif;
-  font-weight: 600;
-  font-style: normal;
-}
-
-.be-vietnam-pro-bold {
-  font-family: "Be Vietnam Pro", sans-serif;
-  font-weight: 700;
-  font-style: normal;
-}
-
-.be-vietnam-pro-extrabold {
-  font-family: "Be Vietnam Pro", sans-serif;
-  font-weight: 800;
-  font-style: normal;
-}
-
-.be-vietnam-pro-black {
-  font-family: "Be Vietnam Pro", sans-serif;
-  font-weight: 900;
-  font-style: normal;
-}
+/* ...existing styles... */
 </style>
