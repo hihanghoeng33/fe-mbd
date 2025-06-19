@@ -1,6 +1,7 @@
 <script setup>
 import Hero from './Hero.vue';
 import ProjectCardMain from './ProjectCardMain.vue';
+import CreateProject from './CreateProject.vue';
 import { projectService } from '@/services/projectService';
 import { authService } from '@/services/authService';
 import { ref, onMounted, onBeforeUnmount } from 'vue';
@@ -8,6 +9,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 const scrollContainer = ref(null);
 const projects = ref([]);
 const loading = ref(false);
+const isCreateModelOpen = ref(false);
 const errorMessage = ref('');
 const username = ref('');
 
@@ -50,8 +52,8 @@ const loadLecturerProjects = async () => {
   errorMessage.value = '';
   try {
     // Ganti dengan API yang sesuai untuk mengambil proyek milik dosen
-    let lecturerProjects = await projectService.getProjectsByLecturer();
-    projects.value = lecturerProjects.map(projectService.transformProjectData);
+    let lecturerProjects = await projectService.getProjectsByUserId();
+    projects.value = lecturerProjects;
   } catch (error) {
     console.error('Error loading lecturer projects:', error);
     errorMessage.value = 'Gagal memuat proyek Anda';
@@ -80,7 +82,7 @@ onBeforeUnmount(() => {
 });
 
 const handleCreateProject = () => {
-  console.log('Create new project');
+  isCreateModelOpen.value = true;
 };
 </script>
 

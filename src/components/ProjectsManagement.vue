@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import ProjectCardMain from './ProjectCardMain.vue';
 import { projectService } from '@/services/projectService';
 
@@ -56,6 +56,11 @@ const handleAddProject = async () => {
     loading.value = false;
   }
 };
+
+onMounted(() => {
+  fetchProjects();
+})
+
 </script>
 
 <template>
