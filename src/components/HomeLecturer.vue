@@ -1,7 +1,6 @@
 <script setup>
 import Hero from './Hero.vue';
 import ProjectCardMain from './ProjectCardMain.vue';
-import CreateProject from './CreateProject.vue';
 import { projectService } from '@/services/projectService';
 import { authService } from '@/services/authService';
 import { ref, onMounted, onBeforeUnmount } from 'vue';
@@ -9,7 +8,6 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 const scrollContainer = ref(null);
 const projects = ref([]);
 const loading = ref(false);
-const isCreateModelOpen = ref(false);
 const errorMessage = ref('');
 const username = ref('');
 
