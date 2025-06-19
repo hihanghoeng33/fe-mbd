@@ -329,6 +329,16 @@ export const projectService = {
     }
   },
 
+  async getProjectsByUserId() {
+    try {
+      const response = await apiService.get('/api/user/projects');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+      throw error
+    }
+  },
+
   async getProjectsByStatus(status, page = 1) {
     try {
       const response = await apiService.get(`/api/projects?status=${status}&page=${page}`);
