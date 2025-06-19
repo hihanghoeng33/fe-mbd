@@ -86,22 +86,41 @@ const barColor = computed(() => {
 });
 
 const registering = ref(false);
-const isRegistered = ref(false); // opsional, jika ingin cek sudah daftar
+const isRegistered = ref(false);
+const registrationMessage = ref("");
 
 const emit = defineEmits(["update-filled"]);
 
 const handleRegister = async () => {
+  if (!props.project_id) {
+    registrationMessage.value = "Project ID tidak tersedia";
+    return;
+  }
+
   registering.value = true;
+  registrationMessage.value = "";
+  
   try {
-    await projectService.registerToProject(
-      props.project_id,
-      userStore.user.user_id
-    );
-    // Emit event ke parent agar parent update data project
-    emit("update-filled", props.project_id);
+    await projectService.requestJoinProject(props.project_id);
     isRegistered.value = true;
-  } catch (e) {
-    alert("Gagal mendaftar!");
+    registrationMessage.value = "Permintaan bergabung berhasil dikirim!";
+    
+    // Emit event ke parent untuk update data jika diperlukan
+    emit("update-filled", props.project_id);
+    
+    // Clear message after 3 seconds
+    setTimeout(() => {
+      registrationMessage.value = "";
+    }, 3000);
+    
+  } catch (error) {
+    console.error('Error joining project:', error);
+    registrationMessage.value = error.response?.data?.message || "Gagal mengirim permintaan bergabung!";
+    
+    // Clear error message after 5 seconds
+    setTimeout(() => {
+      registrationMessage.value = "";
+    }, 5000);
   } finally {
     registering.value = false;
   }
@@ -211,25 +230,23 @@ const handleRegister = async () => {
       class="flex items-end justify-end gap-x-4 p-4"
     >
       <slot name="actions">
-        <button
-          class="bg-gray-100 items-center flex justify-center rounded-3xl gap-x-2 py-2 px-3 text-gray-800 h-10 w-22"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 1024 1024"
-          >
-            <path
-              d="M104.704 338.752a64 64 0 0 1 90.496 0l316.8 316.8l316.8-316.8a64 64 0 0 1 90.496 90.496L557.248 791.296a64 64 0 0 1-90.496 0L104.704 429.248a64 64 0 0 1 0-90.496"
-            />
-          </svg>
-          <span class="text-sm">Role</span>
-        </button>
+        <!-- Registration Message -->
+        <div v-if="registrationMessage" class="text-xs mb-2 px-2 py-1 rounded" 
+             :class="isRegistered ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'">
+          {{ registrationMessage }}
+        </div>
+        
         <button
           @click="handleRegister"
           :disabled="registering || isRegistered"
-          class="bg-gradient-to-t from-[#07C8F9] from-5% to-blue-500 text-white rounded-3xl items-center flex justify-center gap-x-2 py-2 px-3 h-10 w-22"
+          :class="[
+            'rounded-3xl items-center flex justify-center gap-x-2 py-2 px-3 h-10 w-22 transition-colors',
+            isRegistered 
+              ? 'bg-green-500 text-white cursor-not-allowed' 
+              : registering 
+                ? 'bg-gray-400 text-white cursor-not-allowed'
+                : 'bg-gradient-to-t from-[#07C8F9] from-5% to-blue-500 text-white hover:from-[#06B4E6] hover:to-blue-600'
+          ]"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -242,9 +259,9 @@ const handleRegister = async () => {
               d="M11 17h2v-6h-2zm1-8q.425 0 .713-.288T13 8t-.288-.712T12 7t-.712.288T11 8t.288.713T12 9m0 13q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"
             />
           </svg>
-          <span class="text-sm">{{
-            isRegistered ? "Sudah Terdaftar" : "Daftar"
-          }}</span>
+          <span class="text-sm">
+            {{ registering ? "Mengirim..." : isRegistered ? "Sudah Daftar" : "Daftar" }}
+          </span>
         </button>
       </slot>
     </div>

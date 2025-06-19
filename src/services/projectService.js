@@ -339,6 +339,19 @@ export const projectService = {
     }
   },
 
+  async requestJoinProject(projectId) {
+    try {
+      const response = await apiService.post(`/api/project/${projectId}/request-join`, {
+        project_id: projectId,
+        role_project: "member"
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error requesting to join project:', error);
+      throw error;
+    }
+  },
+
   async getProjectsByStatus(status, page = 1) {
     try {
       const response = await apiService.get(`/api/projects?status=${status}&page=${page}`);
