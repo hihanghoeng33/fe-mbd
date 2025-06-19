@@ -2,6 +2,10 @@
 import { computed, ref, onMounted } from "vue";
 import { projectService } from "@/services/projectService";
 import { authService } from "@/services/authService";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
 const user = ref(null)
 onMounted(async () => {
   try {
@@ -27,6 +31,13 @@ const userIdentifier = computed(() => {
   return user.value.user_id || user.value.name || 'User'
 })
 
+const handleEditProject = () => {
+  if (props.project_id) {
+    router.push(`/detailprojects/${props.project_id}`);
+  } else {
+    console.error('Project ID not available for navigation');
+  }
+};
 
 console.log(userRole);
 const props = defineProps({
@@ -72,10 +83,22 @@ const props = defineProps({
 const slots = defineSlots();
 
 const categoriesArray = computed(() => {
-  if (!props.categories || props.categories.length == 0) return [];
-  return props.categories
-    .map((category) => category.trim())
-    .filter((category) => category);
+  if (!props.categories) return [];
+  
+  // Handle both array and string formats
+  if (Array.isArray(props.categories)) {
+    return props.categories.filter(category => category && category.trim());
+  }
+  
+  // Handle comma-separated string format
+  if (typeof props.categories === 'string') {
+    return props.categories
+      .split(',')
+      .map(category => category.trim())
+      .filter(category => category);
+  }
+  
+  return [];
 });
 
 const barColor = computed(() => {
@@ -265,13 +288,14 @@ const handleRegister = async () => {
         </button>
       </slot>
     </div>
-    <div
+        <div
       v-else-if="userRole==='dosen'"
       class="flex items-end justify-end gap-x-4 p-4"
     >
       <slot name="actions">
         <button
-          class="bg-gray-100 items-center flex justify-center rounded-3xl gap-x-2 py-2 px-3 text-gray-800 h-10 w-22"
+          @click="handleEditProject"
+          class="bg-gray-100 items-center flex justify-center rounded-3xl gap-x-2 py-2 px-3 text-gray-800 h-10 w-22 hover:bg-gray-200 transition-colors"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -287,9 +311,7 @@ const handleRegister = async () => {
           <span class="text-sm">Edit</span>
         </button>
         <button
-          @click="handleRegister"
-          :disabled="registering || isRegistered"
-          class="bg-red-500 text-white rounded-3xl items-center flex justify-center gap-x-2 py-2 px-3 h-10 w-22"
+          class="bg-red-500 text-white rounded-3xl items-center flex justify-center gap-x-2 py-2 px-3 h-10 w-22 hover:bg-red-600 transition-colors"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

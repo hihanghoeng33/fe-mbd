@@ -200,6 +200,7 @@ onMounted(fetchProjects);
       <ProjectCardMain
         v-for="project in paginatedProjects"
         :key="project.project_id"
+        :project_id="project.project_id"
         :title="project.title"
         :author="project.author"
         :filled="project.filled"

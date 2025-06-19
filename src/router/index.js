@@ -15,7 +15,6 @@ import HomeAdmin from '@/components/HomeAdmin.vue';
 import ListofProject from '@/components/ListofProject.vue';
 import LecturerArchive from '@/components/LecturerArchive.vue';
 
-
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
@@ -52,14 +51,8 @@ const router = createRouter({
         }, 
         {
             path: '/archive',
-            component: Archive,
-            children: [
-                {
-                    path: '',
-                    name: 'detailprojects',
-                    component: DetailProject
-                }
-            ]
+            name: 'archive',
+            component: Archive
         },
         {
             path: '/lecturerhome',
@@ -73,7 +66,7 @@ const router = createRouter({
         }, 
         {
             path: '/projectsmanagement',
-            name: 'projectsmanagament',
+            name: 'projectsmanagement',
             component: ProjectsManagement
         }, 
         {
@@ -101,10 +94,6 @@ router.beforeEach((to, from, next) => {
   const isAuthenticated = authService.isAuthenticated();
   const publicPages = ['login', 'register', 'index'];
   const authRequired = !publicPages.includes(to.name);
-//   isAuthenticated() {
-//     const user = localStorage.getItem('user');
-//     return !!user;
-//     }
 
     console.log(authService.isAuthenticated());
   if (authRequired && !isAuthenticated) {

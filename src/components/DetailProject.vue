@@ -1,7 +1,8 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { projectService } from '../services/projectService.js';
+import { authService } from '../services/authService.js';
 
 const route = useRoute();
 const activeTab = ref("deskripsi");
@@ -15,8 +16,30 @@ const documentsError = ref('');
 const members = ref([]);
 const membersLoading = ref(false);
 const membersError = ref('');
+const joinRequests = ref([]);
+const joinRequestsLoading = ref(false);
+const joinRequestsError = ref('');
 const loading = ref(false);
 const error = ref('');
+const user = ref(null);
+
+// Get current user
+onMounted(async () => {
+  try {
+    const userData = authService.getCurrentUser();
+    if (userData) {
+      user.value = userData;
+    } else if (authService.isAuthenticated()) {
+      const fetchedUser = await authService.getCurrentUserProfile();
+      user.value = fetchedUser;
+    }
+  } catch (error) {
+    console.error('Error loading user data:', error);
+  }
+});
+
+// Check if current user is a lecturer
+const isLecturer = computed(() => user.value?.role === 'dosen');
 
 const tabs = [
   { name: "Deskripsi", value: "deskripsi" },
@@ -24,6 +47,17 @@ const tabs = [
   { name: "Dokumen", value: "dokumen" },
   { name: "Anggota", value: "anggota" },
 ];
+
+// Add join requests tab for lecturers
+const tabsForLecturer = computed(() => {
+  if (isLecturer.value) {
+    return [
+      ...tabs,
+      { name: "Permintaan Bergabung", value: "join-requests" }
+    ];
+  }
+  return tabs;
+});
 
 const loadProjectDetails = async () => {
   loading.value = true;
@@ -107,6 +141,73 @@ const loadProjectMembers = async () => {
   }
 };
 
+const loadProjectJoinRequests = async () => {
+  if (!route.params.id || !isLecturer.value) return;
+  
+  joinRequestsLoading.value = true;
+  joinRequestsError.value = '';
+  
+  try {
+    console.log('Loading join requests for project ID:', route.params.id);
+    const joinRequestsData = await projectService.getProjectJoinRequests(route.params.id);
+    console.log('Raw join requests data:', joinRequestsData);
+    console.log('Join requests data type:', typeof joinRequestsData);
+    console.log('Is array:', Array.isArray(joinRequestsData));
+    
+    if (Array.isArray(joinRequestsData)) {
+      // Filter for inactive requests (pending requests)
+      const pendingRequests = joinRequestsData.filter(request => !request.is_active);
+      joinRequests.value = pendingRequests;
+      console.log('Filtered pending requests:', pendingRequests);
+    } else {
+      console.warn('Join requests data is not an array:', joinRequestsData);
+      joinRequests.value = [];
+    }
+  } catch (err) {
+    console.error('Error loading join requests:', err);
+    console.error('Error details:', err.response?.data || err.message);
+    joinRequestsError.value = 'Gagal memuat permintaan bergabung';
+  } finally {
+    joinRequestsLoading.value = false;
+  }
+};
+
+const approveJoinRequest = async (projectMemberId) => {
+  try {
+    console.log('Approving join request for project_member_id:', projectMemberId, 'project:', route.params.id);
+    await projectService.approveJoinRequest(route.params.id, projectMemberId);
+    
+    // Remove the approved request from the list
+    joinRequests.value = joinRequests.value.filter(request => request.project_member_id !== projectMemberId);
+    console.log('Removed approved request, remaining requests:', joinRequests.value.length);
+    
+    // Reload members to show the newly approved member
+    await loadProjectMembers();
+    
+    // Show success message
+    alert('Permintaan bergabung berhasil disetujui!');
+  } catch (error) {
+    console.error('Error approving join request:', error);
+    console.error('Error response:', error.response?.data);
+    alert('Gagal menyetujui permintaan bergabung: ' + (error.response?.data?.message || error.message));
+  }
+};
+
+const formatDateTime = (dateString) => {
+  if (!dateString) return 'Tanggal tidak tersedia';
+  try {
+    return new Date(dateString).toLocaleString('id-ID', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (error) {
+    return 'Format tanggal tidak valid';
+  }
+};
+
 const formatDate = (dateString) => {
   if (!dateString) return '-';
   return new Date(dateString).toLocaleDateString('id-ID', {
@@ -136,18 +237,21 @@ const getStatusText = (status) => {
 
 const getCategoriesArray = (categories) => {
   if (!categories) return [];
-  return categories.split(',').map(cat => cat.trim()).filter(cat => cat);
-};
-
-const formatDateTime = (dateTimeString) => {
-  if (!dateTimeString) return '-';
-  return new Date(dateTimeString).toLocaleDateString('id-ID', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  
+  // Handle both array and string formats
+  if (Array.isArray(categories)) {
+    return categories.filter(category => category && category.trim());
+  }
+  
+  // Handle comma-separated string format
+  if (typeof categories === 'string') {
+    return categories
+      .split(',')
+      .map(cat => cat.trim())
+      .filter(cat => cat);
+  }
+  
+  return [];
 };
 
 const getMilestoneStatusColor = (status) => {
@@ -243,6 +347,9 @@ onMounted(async () => {
   await loadProjectMilestones();
   await loadProjectDocuments();
   await loadProjectMembers();
+  if (isLecturer.value) {
+    await loadProjectJoinRequests();
+  }
 });
 </script>
 
@@ -251,14 +358,14 @@ onMounted(async () => {
     <!-- Tabs -->
     <div class="flex flex-col w-48 bg-gray-200 p-4 gap-y-2 rounded-l-lg">
       <button
-        v-for="tab in tabs"
+        v-for="tab in tabsForLecturer"
         :key="tab.value"
         @click="activeTab = tab.value"
         :class="[
-          'relative block w-full text-left px-4 py-2 rounded-lg font-medium transition',
+          'text-left px-4 py-2 rounded transition-colors',
           activeTab === tab.value
             ? 'bg-blue-500 text-white'
-            : 'hover:bg-gray-300 text-gray-700',
+            : 'text-gray-700 hover:bg-gray-300'
         ]"
       >
         {{ tab.name }}
@@ -422,6 +529,111 @@ onMounted(async () => {
               </svg>
               <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Milestones</h3>
               <p class="text-gray-500">Proyek ini belum memiliki milestones yang didefinisikan.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Join Requests Tab (Only for Lecturers) -->
+        <div v-if="activeTab === 'join-requests' && isLecturer" class="text-gray-700">
+          <div class="bg-white rounded-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-xl font-bold">Permintaan Bergabung</h2>
+              <div v-if="joinRequests.length > 0" class="text-sm text-gray-600">
+                {{ joinRequests.length }} permintaan menunggu
+              </div>
+            </div>
+            
+            <!-- Loading State -->
+            <div v-if="joinRequestsLoading" class="flex justify-center items-center py-8">
+              <div class="text-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
+                <span class="text-gray-600">Memuat permintaan bergabung...</span>
+              </div>
+            </div>
+
+            <!-- Error State -->
+            <div v-else-if="joinRequestsError" class="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div class="flex items-center">
+                <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <p class="text-red-700">{{ joinRequestsError }}</p>
+              </div>
+            </div>
+
+            <!-- No Join Requests -->
+            <div v-else-if="joinRequests.length === 0" class="text-center py-12">
+              <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+              </svg>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak Ada Permintaan Bergabung</h3>
+              <p class="text-gray-500">Belum ada mahasiswa yang mengajukan permintaan untuk bergabung dengan proyek ini.</p>
+            </div>
+
+            <!-- Join Requests List -->
+            <div v-else class="space-y-4">
+              <div
+                v-for="request in joinRequests"
+                :key="request.project_member_id"
+                class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+              >
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-4">
+                    <div class="flex-shrink-0">
+                      <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 class="text-lg font-medium text-gray-900">{{ request.user_id }}</h3>
+                      <div class="flex items-center space-x-4 text-sm text-gray-500 mt-1">
+                        <span class="flex items-center gap-1">
+                          <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                          {{ request.role_project || 'Member' }}
+                        </span>
+                        <span>Mengajukan: {{ formatDateTime(request.joined_at) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-center space-x-3">
+                    <button
+                      @click="approveJoinRequest(request.project_member_id)"
+                      class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                      </svg>
+                      Setujui
+                    </button>
+                    <button
+                      class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                      </svg>
+                      Tolak
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Summary Stats -->
+            <div v-if="joinRequests.length > 0" class="bg-gray-50 rounded-lg p-4 mt-6">
+              <h3 class="text-sm font-semibold text-gray-700 mb-3">Ringkasan Permintaan</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
+                <div class="bg-white rounded-lg p-3">
+                  <div class="text-2xl font-bold text-blue-600">{{ joinRequests.length }}</div>
+                  <div class="text-xs text-gray-500">Total Permintaan</div>
+                </div>
+                <div class="bg-white rounded-lg p-3">
+                  <div class="text-2xl font-bold text-yellow-600">{{ joinRequests.length }}</div>
+                  <div class="text-xs text-gray-500">Menunggu Persetujuan</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
