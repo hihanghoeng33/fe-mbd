@@ -168,7 +168,7 @@ const handleLogout = () => {
               :disabled="loading"
               :class="[
                 'px-4 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50',
-                isEditing ? 'bg-gray-500 hover:bg-gray-600 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'
+                isEditing ? 'bg-gray-500 hover:bg-gray-600 text-gray-900' : 'bg-blue-600 hover:bg-blue-700 text-white'
               ]"
             >
               {{ isEditing ? 'Batal' : 'Edit Profil' }}
