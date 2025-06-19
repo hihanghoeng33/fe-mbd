@@ -17,7 +17,7 @@ const itemsPerPage = 10;
 const newProject = ref({
   title: '',
   description: '',
-  total: 0,
+  total: 10,
   filled: 0,
   categories: '',
   startDate: '',
@@ -108,7 +108,7 @@ const handleAddProject = async () => {
 
 /* -------------------- Pagination -------------------- */
 const nextPage = () => currentPage.value < totalPages.value && currentPage.value++;
-const prevPage = () => currentPage.value > 1 && currentPage.value--;
+const prevPage = () => currentPage.value >= 1 && currentPage.value--;
 const goToPage = (page) => currentPage.value = page;
 
 /* -------------------- Lifecycle -------------------- */
@@ -180,7 +180,7 @@ onMounted(fetchProjects);
           <input v-model="newProject.categories" type="text" placeholder="Kategori (pisahkan dengan koma)" class="w-full border rounded px-3 py-2" required />
           <textarea v-model="newProject.description" placeholder="Deskripsi" class="w-full border rounded px-3 py-2" required></textarea>
           <input v-model="newProject.startDate" type="date" placeholder="Penulis" class="w-full border rounded px-3 py-2" required />
-          <input v-model="newProject.startDate" type="date" placeholder="Penulis" class="w-full border rounded px-3 py-2" required />
+          <input v-model="newProject.endDate" type="date" placeholder="Penulis" class="w-full border rounded px-3 py-2" required />
           <div class="flex gap-2">
             <button type="submit" :disabled="loading" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
               {{ loading ? 'Menyimpan...' : 'Simpan' }}
@@ -223,7 +223,8 @@ onMounted(fetchProjects);
     </div>
 
     <!-- Pagination -->
-    <div v-if="totalPages > 1" class="text-gray-900 flex justify-center items-center gap-2 py-4">
+    <div v-if="totalPages >= 1" class="text-gray-900 flex justify-center items-center gap-2 py-4">
+      
       <button 
         @click="prevPage" 
         :disabled="currentPage === 1"
