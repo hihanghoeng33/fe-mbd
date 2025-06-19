@@ -55,6 +55,14 @@ const props = defineProps({
     default:
       "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus deleniti saepe vel quasi quaerat voluptate magnam, laboriosam, id esse dolor, earum rerum pariatur. Exercitationem rem voluptas deserunt ipsa illo expedita.",
   },
+  startDate:{
+    type: Date,
+    default: new Date()
+  },
+  endDate:{
+    type: Date,
+    default: new Date()
+  },
   project_id: {
     type: [String, Number],
     default: null,
@@ -66,7 +74,6 @@ const slots = defineSlots();
 const categoriesArray = computed(() => {
   if (!props.categories || props.categories.length == 0) return [];
   return props.categories
-    .split(",")
     .map((category) => category.trim())
     .filter((category) => category);
 });
@@ -137,7 +144,11 @@ const handleRegister = async () => {
           ></div>
         </div>
       </div>
+      <!-- date -->
+    <div class="h-6 pt-2 text-sm text-gray-500"><p>Tanggal mulai proyek: {{ startDate.toLocaleDateString(en-US) }}</p>
+    <p>Tanggal berakhir proyek: {{ endDate.toLocaleDateString(en-US) }}</p></div>
     </div>
+    div.h-2
 
     <!-- button div -->
     <div
@@ -196,7 +207,7 @@ const handleRegister = async () => {
       </slot>
     </div>
     <div
-      v-else
+      v-else-if="userRole==='mahasiswa'"
       class="flex items-end justify-end gap-x-4 p-4"
     >
       <slot name="actions">
@@ -234,6 +245,47 @@ const handleRegister = async () => {
           <span class="text-sm">{{
             isRegistered ? "Sudah Terdaftar" : "Daftar"
           }}</span>
+        </button>
+      </slot>
+    </div>
+    <div
+      v-else-if="userRole==='dosen'"
+      class="flex items-end justify-end gap-x-4 p-4"
+    >
+      <slot name="actions">
+        <button
+          class="bg-gray-100 items-center flex justify-center rounded-3xl gap-x-2 py-2 px-3 text-gray-800 h-10 w-22"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+            />
+          </svg>
+          <span class="text-sm">Edit</span>
+        </button>
+        <button
+          @click="handleRegister"
+          :disabled="registering || isRegistered"
+          class="bg-red-500 text-white rounded-3xl items-center flex justify-center gap-x-2 py-2 px-3 h-10 w-22"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M7 21q-.825 0-1.412-.587T5 19V6H4V4h5V3h6v1h5v2h-1v13q0 .825-.587 1.413T17 21H7ZM17 6H7v13h10V6ZM9 17h2V8H9v9Zm4 0h2V8h-2v9ZM7 6v13V6Z"
+            />
+          </svg>
+          <span class="text-sm">Hapus</span>
         </button>
       </slot>
     </div>
