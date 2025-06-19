@@ -189,7 +189,7 @@ const refreshFilled = async (projectId) => {
     <!-- Input Pencarian + Filter -->
     <div class="flex gap-x-16 gap-y-4">
       <div
-        class="flex items-center bg-[#E8EDF2] rounded-xl justify-center h-12 mb-4 lg: w-[700px] md:w-[] text-gray-700 p-3"
+        class="flex items-center bg-[#E8EDF2] rounded-xl justify-center h-12 mb-4 lg:w-[700px] md:w-[] text-gray-700 p-3"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
