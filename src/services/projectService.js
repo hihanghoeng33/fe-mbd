@@ -339,6 +339,52 @@ export const projectService = {
     }
   },
 
+  async requestJoinProject(projectId) {
+    try {
+      const response = await apiService.post(`/api/project/${projectId}/request-join`, {
+        project_id: projectId,
+        role_project: "member"
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error requesting to join project:', error);
+      throw error;
+    }
+  },
+
+  async getProjectJoinRequests(projectId) {
+    try {
+      const response = await apiService.get(`/api/project/${projectId}/join-request`);
+      console.log('Project join requests response:', response);
+      
+      // The API returns the array directly, not wrapped in a data property
+      if (Array.isArray(response)) {
+        return response;
+      }
+      
+      // Fallback: check if it's wrapped in data property
+      if (response.data && Array.isArray(response.data)) {
+        return response.data;
+      }
+      
+      console.warn('Unexpected join requests response format:', response);
+      return [];
+    } catch (error) {
+      console.error('Error fetching project join requests:', error);
+      throw error;
+    }
+  },
+
+  async approveJoinRequest(projectId, projectMemberId) {
+    try {
+      const response = await apiService.patch(`/api/project/${projectId}/join-request/${projectMemberId}/approve`);
+      return response.data;
+    } catch (error) {
+      console.error('Error approving join request:', error);
+      throw error;
+    }
+  },
+
   async getProjectsByStatus(status, page = 1) {
     try {
       const response = await apiService.get(`/api/projects?status=${status}&page=${page}`);
@@ -436,11 +482,18 @@ export const projectService = {
     const mockAuthors = this.getMockAuthors();
     const randomAuthor = mockAuthors[Math.floor(Math.random() * mockAuthors.length)];
 
+    // Handle categories - ensure it's always in a consistent format
+    let categories = project.categories || 'General';
+    if (Array.isArray(categories)) {
+      // If it's an array, join with commas for backward compatibility
+      categories = categories.join(', ');
+    }
+
     return {
       project_id: project.project_id,
       title: project.title || 'Untitled Project',
       description: project.description || 'No description available',
-      categories: project.categories || 'General',
+      categories: categories,
       author: randomAuthor,
       filled: studentCount.filled,
       total: studentCount.total,

@@ -73,7 +73,7 @@ const sideBarCondition = () => {
   }else if (user.value.role === "dosen") {
     navItems.value = [
       { icon: "/home.png", label: "Beranda", to: "/lecturerhome" },
-      { icon: "/kelola-proyek.png", label: "Kolola Proyek", to: "/projectsmanagement" },
+      { icon: "/kelola-proyek.png", label: "Kelola Proyek", to: "/projectsmanagement" },
       { icon: "/Arsip.png", label: "Arsip", to: "/lecturerarchive" },
     ];
     console.log('Set dosen nav items:', navItems.value);

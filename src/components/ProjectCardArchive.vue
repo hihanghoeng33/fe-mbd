@@ -28,7 +28,21 @@ const props = defineProps({
 
 const categoriesArray = computed(() => {
   if (!props.categories) return [];
-  return props.categories.split(',').map(category => category.trim()).filter(category => category);
+  
+  // Handle both array and string formats
+  if (Array.isArray(props.categories)) {
+    return props.categories.filter(category => category && category.trim());
+  }
+  
+  // Handle comma-separated string format
+  if (typeof props.categories === 'string') {
+    return props.categories
+      .split(',')
+      .map(category => category.trim())
+      .filter(category => category);
+  }
+  
+  return [];
 });
 
 const statColor = computed(() => {
