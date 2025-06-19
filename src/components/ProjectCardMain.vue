@@ -72,7 +72,7 @@ const props = defineProps({
 const slots = defineSlots();
 
 const categoriesArray = computed(() => {
-  if (!props.categories || props.categories.length == 0) return [];
+  // if (!props.categories || props.categories.length == 0) return [];
   return props.categories
     .map((category) => category.trim())
     .filter((category) => category);
