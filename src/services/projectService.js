@@ -321,7 +321,7 @@ export const projectService = {
 
   async deleteProject(projectId) {
     try {
-      const response = await apiService.delete(`/api/projects/${projectId}`);
+      const response = await apiService.delete(`/api/project/${projectId}`);
       return response.data;
     } catch (error) {
       console.error('Error deleting project:', error);

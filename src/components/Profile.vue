@@ -303,6 +303,27 @@ const handleLogout = () => {
           </div>
         </div>
       </div>
+      <div v-else class="bg-white rounded-lg mt-6 p-6">
+        <h3 class="text-lg be-vietnam-pro-medium text-gray-800 mb-4">Informasi Akun</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div>
+            <span class="text-gray-500">Status Akun:</span>
+            <span class="ml-2 text-red-500 font-medium">Inaktif</span>
+          </div>
+          <div>
+            <span class="text-gray-500">Bergabung:</span>
+            <span class="ml-2 text-gray-800">Januari 2024</span>
+          </div>
+          <div>
+            <span class="text-gray-500">Terakhir Login:</span>
+            <span class="ml-2 text-gray-800">Hari ini</span>
+          </div>
+          <div>
+            <span class="text-gray-500">Proyek Aktif:</span>
+            <span class="ml-2 text-gray-800">3 proyek</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

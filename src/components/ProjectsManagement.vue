@@ -106,6 +106,12 @@ const handleAddProject = async () => {
   }
 };
 
+const removeProject = (projectId) => {
+  projects.value = projects.value.filter(project => project.project_id !== projectId);
+  currentPage.value=1;
+}
+
+
 /* -------------------- Pagination -------------------- */
 const nextPage = () => currentPage.value < totalPages.value && currentPage.value++;
 const prevPage = () => currentPage.value >= 1 && currentPage.value--;
@@ -197,7 +203,7 @@ onMounted(fetchProjects);
 <div class=" h-4"></div>  
     <!-- Grid Proyek -->
     <div v-if="paginatedProjects.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-8">
-      <ProjectCardMain
+      <ProjectCardMain 
         v-for="project in paginatedProjects"
         :key="project.project_id"
         :project_id="project.project_id"
@@ -210,6 +216,7 @@ onMounted(fetchProjects);
         :description="project.description"
         :start-date="project.startDate"
         :end-date="project.endDate"
+        @project-deleted="removeProject"
       />
     </div>
 

@@ -5,8 +5,13 @@ import { authService } from "@/services/authService";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-
+const loading = ref(false);
 const user = ref(null)
+const errorMessage = ref('');
+const successMessage = ref('');
+const projects = ref([]);
+const currentPage = ref(1);
+
 onMounted(async () => {
   try {
     const userData = authService.getCurrentUser()
@@ -38,6 +43,43 @@ const handleEditProject = () => {
     console.error('Project ID not available for navigation');
   }
 };
+
+const fetchProjects = async () => {
+  loading.value = true;
+  errorMessage.value = '';
+  try {
+    const result = await projectService.getProjectsByUserId();
+    projects.value = result;
+  } catch (e) {
+    console.error('Error fetching projects:', e);
+    errorMessage.value = e?.response?.data?.message || 'Gagal memuat proyek.';
+  } finally {
+    loading.value = false;
+  }
+};
+
+
+
+const handleDeleteProject = async (projectId) => {
+  if (!confirm('Apakah Anda yakin ingin menghapus proyek ini?')) return;
+
+  loading.value = true; // Set loading to true
+  errorMessage.value = '';
+  successMessage.value = '';
+  try {
+    console.log(`Deleting project with ID: ${projectId}`);
+    await projectService.deleteProject(projectId);
+    successMessage.value = 'Proyek berhasil dihapus!';
+    // Emit event to parent to update the project list locally
+    emit('project-deleted', projectId);
+  } catch (e) {
+    console.error('Error deleting project:', e);
+    errorMessage.value = e?.response?.data?.message || 'Gagal menghapus proyek.';
+  } finally {
+    loading.value = false; // Set loading to false
+  }
+};
+
 
 console.log(userRole);
 const props = defineProps({
@@ -112,7 +154,7 @@ const registering = ref(false);
 const isRegistered = ref(false);
 const registrationMessage = ref("");
 
-const emit = defineEmits(["update-filled"]);
+const emit = defineEmits(["update-filled, project-deleted"]);
 
 const handleRegister = async () => {
   if (!props.project_id) {
@@ -190,8 +232,14 @@ const handleRegister = async () => {
     <div class="h-6 pt-2 text-sm text-gray-500"><p>Tanggal mulai proyek: {{ startDate.toLocaleDateString(en-US) }}</p>
     <p>Tanggal berakhir proyek: {{ endDate.toLocaleDateString(en-US) }}</p></div>
     </div>
-    div.h-2
-
+    <div class="h-2"></div>
+    <!-- Loading Overlay -->
+    <div v-if="loading" class="absolute inset-0 bg-opacity-50 flex items-center justify-center z-10">
+      <svg class="animate-spin h-8 w-8 text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+      </svg>
+    </div>
     <!-- button div -->
     <div
       v-if="userRole === 'admin'"
@@ -310,7 +358,7 @@ const handleRegister = async () => {
           </svg>
           <span class="text-sm">Edit</span>
         </button>
-        <button
+        <button @click="handleDeleteProject(project_id)"
           class="bg-red-500 text-white rounded-3xl items-center flex justify-center gap-x-2 py-2 px-3 h-10 w-22 hover:bg-red-600 transition-colors"
         >
           <svg
