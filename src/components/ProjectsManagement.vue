@@ -24,9 +24,10 @@ const fetchProjects = async () => {
   loading.value = true;
   errorMessage.value = '';
   try {
-    const result = await projectService.getProjectsByLecturer();
-    projects.value = result.map(projectService.transformProjectData);
+    const result = await projectService.getProjectsByUserId();
+    projects.value = result;
   } catch (e) {
+    console.log(e);
     errorMessage.value = 'Gagal memuat proyek.';
   } finally {
     loading.value = false;
@@ -42,14 +43,13 @@ const handleAddProject = async () => {
     // Kirim ke API
     await projectService.createProject({
       ...newProject.value,
-      categories: newProject.value.categories.split(',').map(s => s.trim())
     });
-    successMessage.value = 'Proyek berhasil ditambahkan!';
     showForm.value = false;
     // Reset form
     newProject.value = { title: '', author: '', filled: 0, total: 1, categories: '', description: '' };
     // Fetch ulang daftar proyek
     await fetchProjects();
+    successMessage.value = 'Proyek berhasil ditambahkan!';
   } catch (e) {
     errorMessage.value = 'Gagal menambah proyek.';
   } finally {
@@ -90,9 +90,9 @@ const handleAddProject = async () => {
             <button type="button" @click="showForm = false" class="bg-yellow-400 px-4 text-white py-2 rounded hover:bg-yellow-500">Batal</button>
           </div>
         </form>
-        <div v-if="errorMessage" class="text-red-600 mt-2">{{ errorMessage }}</div>
-        <div v-if="successMessage" class="text-green-600 mt-2">{{ successMessage }}</div>
       </div>
+      <div v-if="errorMessage" class="text-red-600 mt-2">{{ errorMessage }}</div>
+      <div v-if="successMessage" class="text-green-600 mt-2">{{ successMessage }}</div>
     </div>
 
     <!-- Jika sudah ada proyek, tampilkan daftar proyek -->
