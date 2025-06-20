@@ -4,7 +4,6 @@ import ProjectCardMain from './ProjectCardMain.vue';
 import { projectService } from '@/services/projectService';
 
 /* -------------------- State -------------------- */
-const projects = ref([]);
 const loading = ref(false);
 const errorMessage = ref('');
 const successMessage = ref('');
@@ -20,10 +19,38 @@ const newProject = ref({
   total: 10,
   filled: 0,
   categories: '',
-  startDate: '',
-  endDate: ''
+  start_date: Date,
+  end_Date: Date
 });
+const projects = ref([
+  {
+    project_id: 1,
+    title: "Dummy Project",
+    categories: ["Web", "AI"],
+    status: "ONGOING",
+    milestones: [
+      { milestone_id: 1, status: "COMPLETED" },
+      { milestone_id: 2, status: "ONGOING" },
+      { milestone_id: 3, status: "PLANNING" },
+    ],
+  },
+  {
+    project_id: 2,
+    title: "Proyek Lain",
+    categories: ["IoT"],
+    status: "COMPLETED",
+    milestones: [
+      { milestone_id: 1, status: "COMPLETED" },
+      { milestone_id: 2, status: "COMPLETED" },
+    ],
+  },
+]);
 
+const getMilestoneSummary = (milestones) => {
+  const total = milestones.length;
+  const completed = milestones.filter((m) => m.status === "COMPLETED").length;
+  return `${completed}/${total} selesai`;
+};
 /* -------------------- Computed -------------------- */
 const filteredProjects = computed(() => {
    if (!projects.value) return [];
@@ -60,8 +87,8 @@ const resetForm = () => {
     filled:1,
     description: '',
     categories: '',
-    startDate: '',
-    endDate: ''
+    start_date: Date,
+    end_date: Date
   };
 };
 
@@ -74,6 +101,7 @@ const fetchProjects = async () => {
   } catch (e) {
     console.log(e);
     errorMessage.value = e?.response?.data?.message || 'Gagal memuat proyek.';
+    resetForm();
   } finally {
     loading.value = false;
   }
@@ -86,14 +114,12 @@ const handleAddProject = async () => {
   try {
     const payload = {
       ...newProject.value,
-      categories: newProject.value.categories.split(',').map(s => s.trim())
+      categories: newProject.value.categories.split(',').map(s => s.trim()),
+      start_date: toISOString(newProject.value.start_date),
     };
     console.log('Payload:', payload);
-
-    console.log('Payload JSON:', JSON.stringify(payload));
-
     await projectService.createProject(payload);
-    newProject.value = { title: '', filled: 1, total: 10, categories: '', description: '', startDate:'', endDate: ''};
+    newProject.value = { title: '', filled: 1, total: 10, categories: '', description: '', start_date:Date, end_date:Date};
     successMessage.value = 'Proyek berhasil ditambahkan!';
     showForm.value = false;
     resetForm();
@@ -185,8 +211,8 @@ onMounted(fetchProjects);
           <input v-model.number="newProject.total" type="number" min="1" placeholder="Total Slot" class="w-full border rounded px-3 py-2" required />
           <input v-model="newProject.categories" type="text" placeholder="Kategori (pisahkan dengan koma)" class="w-full border rounded px-3 py-2" required />
           <textarea v-model="newProject.description" placeholder="Deskripsi" class="w-full border rounded px-3 py-2" required></textarea>
-          <input v-model="newProject.startDate" type="date" placeholder="Penulis" class="w-full border rounded px-3 py-2" required />
-          <input v-model="newProject.endDate" type="date" placeholder="Penulis" class="w-full border rounded px-3 py-2" required />
+          <input v-model="newProject.start_date" type="date" placeholder="Penulis" class="w-full border rounded px-3 py-2" required />
+          <input v-model="newProject.end_date" type="date" placeholder="Penulis" class="w-full border rounded px-3 py-2" required />
           <div class="flex gap-2">
             <button type="submit" :disabled="loading" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
               {{ loading ? 'Menyimpan...' : 'Simpan' }}
@@ -214,8 +240,8 @@ onMounted(fetchProjects);
         :categories="project.categories"
         :image="project.image"
         :description="project.description"
-        :start-date="project.startDate"
-        :end-date="project.endDate"
+        :start-date="project.start_date"
+        :end-date="project.end_Date"
         @project-deleted="removeProject"
       />
     </div>

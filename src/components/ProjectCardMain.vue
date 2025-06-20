@@ -92,8 +92,8 @@ const props = defineProps({
     default: "Nama Dosen",
   },
   categories: {
-    type: String,
-    default: "",
+    type: Array,
+    default: [],
   },
   filled: {
     type: Number,
@@ -108,11 +108,11 @@ const props = defineProps({
     default:
       "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus deleniti saepe vel quasi quaerat voluptate magnam, laboriosam, id esse dolor, earum rerum pariatur. Exercitationem rem voluptas deserunt ipsa illo expedita.",
   },
-  startDate:{
+  start_date:{
     type: Date,
     default: new Date()
   },
-  endDate:{
+  end_date:{
     type: Date,
     default: new Date()
   },
@@ -229,8 +229,8 @@ const handleRegister = async () => {
         </div>
       </div>
       <!-- date -->
-    <div class="h-6 pt-2 text-sm text-gray-500"><p>Tanggal mulai proyek: {{ startDate.toLocaleDateString(en-US) }}</p>
-    <p>Tanggal berakhir proyek: {{ endDate.toLocaleDateString(en-US) }}</p></div>
+    <div class="h-6 pt-2 text-sm text-gray-500"><p>Tanggal mulai proyek: {{ start_date.toLocaleDateString(en-US) }}</p>
+    <p>Tanggal berakhir proyek: {{ end_date.toLocaleDateString(en-US) }}</p></div>
     </div>
     <div class="h-2"></div>
     <!-- Loading Overlay -->

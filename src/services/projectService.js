@@ -239,7 +239,15 @@ export const projectService = {
       throw error;
     }
   },
-
+  async createMilestone(projectId, milestoneData) {
+    try {
+      const response = await apiService.post(`/api/project/${projectId}/milestones`, milestoneData);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating milestone:', error);
+      throw error;
+    }
+  },
   async getProjectDocuments(projectId) {
     try {
       const response = await apiService.get(`/api/project/${projectId}/documents`);
@@ -257,7 +265,7 @@ export const projectService = {
       console.log('Project members full response:', response);
       console.log('Response data:', response.data);
       console.log('Response data type:', typeof response.data);
-      
+
       // Handle different response formats
       if (response.data === null || response.data === undefined) {
         console.log('Response data is null/undefined, checking response directly');
@@ -267,17 +275,17 @@ export const projectService = {
         }
         return [];
       }
-      
+
       if (Array.isArray(response.data)) {
         console.log('Response.data is an array with length:', response.data.length);
         return response.data;
       }
-      
+
       if (response.data && Array.isArray(response.data.data)) {
         console.log('Response.data.data is an array');
         return response.data.data;
       }
-      
+
       // If response structure is different, try to find the array
       if (typeof response.data === 'object') {
         console.log('Response.data is an object, keys:', Object.keys(response.data));
@@ -289,7 +297,7 @@ export const projectService = {
           }
         }
       }
-      
+
       console.warn('Unexpected response format for project members:', response);
       return [];
     } catch (error) {
@@ -356,17 +364,17 @@ export const projectService = {
     try {
       const response = await apiService.get(`/api/project/${projectId}/join-request`);
       console.log('Project join requests response:', response);
-      
+
       // The API returns the array directly, not wrapped in a data property
       if (Array.isArray(response)) {
         return response;
       }
-      
+
       // Fallback: check if it's wrapped in data property
       if (response.data && Array.isArray(response.data)) {
         return response.data;
       }
-      
+
       console.warn('Unexpected join requests response format:', response);
       return [];
     } catch (error) {
@@ -484,19 +492,16 @@ export const projectService = {
 
     // Handle categories - ensure it's always in a consistent format
     let categories = project.categories || 'General';
-    if (Array.isArray(categories)) {
-      // If it's an array, join with commas for backward compatibility
-      categories = categories.join(', ');
-    }
-
+    console.log('project filled, project total, project.start_date, project.end_date')
+    console.log(project.filled, project.total, project.start_date, project.end_date)
     return {
       project_id: project.project_id,
       title: project.title || 'Untitled Project',
       description: project.description || 'No description available',
       categories: categories,
-      author: randomAuthor,
-      filled: studentCount.filled,
-      total: studentCount.total,
+      author: project.author || randomAuthor,
+      filled: project.filled || studentCount.filled,
+      total: project.total || studentCount.total,
       status: project.status,
       start_date: project.start_date,
       end_date: project.end_date
