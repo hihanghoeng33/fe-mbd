@@ -312,6 +312,36 @@ const downloadDocument = (document) => {
   }
 };
 
+// Function to get user display name from user_id
+const getUserDisplayName = (userId) => {
+  // Try to find the user in members list first
+  const member = members.value.find(m => m.user_id === userId);
+  if (member && member.name) {
+    return member.name;
+  }
+  
+  // If not found in members, return the user_id with a formatted display
+  return userId || 'Unknown User';
+};
+
+// Function to format user info with role if available
+const getUserInfo = (userId) => {
+  const member = members.value.find(m => m.user_id === userId);
+  if (member) {
+    return {
+      name: member.name || userId,
+      role: member.role_project || 'Member',
+      userId: userId
+    };
+  }
+  
+  return {
+    name: userId || 'Unknown User',
+    role: 'Member',
+    userId: userId
+  };
+};
+
 const getRoleText = (role) => {
   if (!role) return 'Anggota';
   const roleUpper = role.toUpperCase();
@@ -689,10 +719,34 @@ onMounted(async () => {
                           </svg>
                           {{ getDocumentTypeText(document.document_type) }}
                         </span>
+                        
+                        <!-- User Information -->
+                        <span class="flex items-center gap-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22L12 18.77L5.82 22L7 14.14l-5-4.87l6.91-1.01L12 2z"/>
+                          </svg>
+                          <span class="font-medium">{{ getUserDisplayName(document.users_user_id) }}</span>
+                          <span class="text-gray-400">•</span>
+                          <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                            {{ getUserInfo(document.users_user_id).role }}
+                          </span>
+                        </span>
                       </div>
                       
-                      <div class="text-xs text-gray-500">
-                        Diunggah: {{ formatDateTime(document.created_at) }}
+                      <!-- Upload Info -->
+                      <div class="flex items-center gap-4 text-xs text-gray-500 mb-2">
+                        <span class="flex items-center gap-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5l1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                          </svg>
+                          Diunggah: {{ formatDateTime(document.created_at) }}
+                        </span>
+                        <span class="flex items-center gap-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                          </svg>
+                          ID: {{ document.users_user_id }}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -720,6 +774,49 @@ onMounted(async () => {
                       </svg>
                       Lihat
                     </button>
+                  </div>
+                </div>  
+              </div>
+              
+              <!-- Documents Summary with User Stats -->
+              <div class="bg-gray-50 rounded-lg p-4 mt-6">
+                <h3 class="text-sm font-semibold text-gray-700 mb-3">Ringkasan Dokumen</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mb-4">
+                  <div class="bg-white rounded-lg p-3">
+                    <div class="text-2xl font-bold text-blue-600">{{ documents.length }}</div>
+                    <div class="text-xs text-gray-500">Total Dokumen</div>
+                  </div>
+                  <div class="bg-white rounded-lg p-3">
+                    <div class="text-2xl font-bold text-green-600">{{ documents.filter(d => d.document_type?.includes('pdf')).length }}</div>
+                    <div class="text-xs text-gray-500">PDF</div>
+                  </div>
+                  <div class="bg-white rounded-lg p-3">
+                    <div class="text-2xl font-bold text-purple-600">{{ documents.filter(d => d.document_type?.includes('image')).length }}</div>
+                    <div class="text-xs text-gray-500">Gambar</div>
+                  </div>
+                  <div class="bg-white rounded-lg p-3">
+                    <div class="text-2xl font-bold text-orange-600">{{ documents.filter(d => d.document_type?.includes('video')).length }}</div>
+                    <div class="text-xs text-gray-500">Video</div>
+                  </div>
+                </div>
+                
+                <!-- Contributors Summary -->
+                <div class="border-t border-gray-200 pt-3">
+                  <h4 class="text-xs font-semibold text-gray-600 mb-2">Kontributor Dokumen:</h4>
+                  <div class="flex flex-wrap gap-2">
+                    <span 
+                      v-for="contributor in [...new Set(documents.map(d => d.users_user_id))]" 
+                      :key="contributor"
+                      class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                      </svg>
+                      {{ getUserDisplayName(contributor) }}
+                      <span class="bg-blue-200 text-blue-900 px-1 rounded-full text-xs">
+                        {{ documents.filter(d => d.users_user_id === contributor).length }}
+                      </span>
+                    </span>
                   </div>
                 </div>
               </div>
