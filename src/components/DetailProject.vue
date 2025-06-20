@@ -22,7 +22,14 @@ const joinRequestsError = ref("");
 const loading = ref(false);
 const error = ref("");
 const user = ref(null);
+const newMilestone = ref({
+  title: "",
+  description: "",
+  due_date: "",
+  status: "PLANNING",
+});
 
+const addMilestoneError = ref("");
 // Get current user
 onMounted(async () => {
   try {
@@ -343,6 +350,34 @@ const getMilestoneProgress = () => {
   return { completed, total, percentage };
 };
 
+function handleAddMilestone() {
+  addMilestoneError.value = "";
+  if (!newMilestone.value.title || !newMilestone.value.due_date) {
+    addMilestoneError.value = "Judul dan tanggal wajib diisi!";
+    return;
+  }
+  // Generate milestone_id otomatis
+  const nextId =
+    milestones.value.length > 0
+      ? Math.max(...milestones.value.map((m) => m.milestone_id)) + 1
+      : 1;
+  milestones.value.push({
+    milestone_id: nextId,
+    title: newMilestone.value.title,
+    description: newMilestone.value.description,
+    due_date: newMilestone.value.due_date,
+    status: newMilestone.value.status,
+    created_at: new Date().toISOString(),
+  });
+  // Reset form
+  newMilestone.value = {
+    title: "",
+    description: "",
+    due_date: "",
+    status: "PLANNING",
+  };
+}
+
 const getDocumentIcon = (documentType) => {
   if (!documentType) return "📄";
   const type = documentType.toLowerCase();
@@ -555,7 +590,53 @@ onMounted(async () => {
         <!-- Milestones Tab -->
         <div class="text-gray-700" v-else-if="activeTab === 'milestones'">
           <div class="bg-white rounded-lg p-6">
+            <!-- Form tambah milestone -->
+            <form
+              @submit.prevent="handleAddMilestone"
+              class="flex flex-row gap-2 mb-4 items-center"
+              style="max-width: 100%"
+            >
+              <input
+                v-model="newMilestone.title"
+                type="text"
+                placeholder="Judul"
+                class="border rounded px-2 py-1 text-xs w-28"
+                required
+              />
+              <input
+                v-model="newMilestone.due_date"
+                type="date"
+                class="border rounded px-2 py-1 text-xs w-28"
+                required
+              />
+              <input
+                v-model="newMilestone.description"
+                type="text"
+                placeholder="Deskripsi"
+                class="border rounded px-2 py-1 text-xs w-32"
+              />
+              <select
+                v-model="newMilestone.status"
+                class="border rounded px-2 py-1 text-xs w-24"
+              >
+                <option value="PLANNING">PLANNING</option>
+                <option value="ONGOING">ONGOING</option>
+                <option value="COMPLETED">COMPLETED</option>
+              </select>
+              <button
+                type="submit"
+                class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700"
+                style="min-width: 70px"
+              >
+                Tambah
+              </button>
+            </form>
+            <div v-if="addMilestoneError" class="text-red-600 mb-2 text-xs">
+              {{ addMilestoneError }}
+            </div>
+            <div class="h-4"></div>
             <div class="flex justify-between items-center mb-6">
+              
               <h2 class="text-xl font-bold">Milestones Proyek</h2>
               <div v-if="milestones.length > 0" class="text-sm text-gray-600">
                 {{ getMilestoneProgress().completed }}/{{
@@ -564,7 +645,7 @@ onMounted(async () => {
                 selesai ({{ getMilestoneProgress().percentage }}%)
               </div>
             </div>
-
+            <div class="h-4"></div>
             <!-- Progress Bar -->
             <div v-if="milestones.length > 0" class="mb-6">
               <div class="bg-gray-200 rounded-full h-3">
@@ -575,6 +656,7 @@ onMounted(async () => {
               </div>
             </div>
             <!-- Filter Buttons -->
+             <div class="h-4"></div>
             <div class="filter-controls mb-6 flex items-center gap-4">
               <label
                 for="milestone-filter"
@@ -590,7 +672,7 @@ onMounted(async () => {
                 <option value="ongoing">Belum Selesai</option>
               </select>
             </div>
-
+            <div class="h-4"></div>
             <!-- Loading State -->
             <div
               v-if="milestonesLoading"
@@ -625,9 +707,9 @@ onMounted(async () => {
                 {{ milestonesError }}
               </div>
             </div>
-
+            
             <!-- Milestones List -->
-            <div v-else-if="filteredMilestones.length > 0" class="space-y-4">
+            <div v-else-if="filteredMilestones.length > 0" class="flex flex-col space-y-4 gap-y-4">
               <div
                 v-for="milestone in filteredMilestones"
                 :key="milestone.milestone_id"
