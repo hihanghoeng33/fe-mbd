@@ -102,6 +102,27 @@ const loadProjectMilestones = async () => {
   }
 };
 
+
+const currentFilter = ref('all');
+
+const filteredMilestones = computed(() => {
+  if (currentFilter.value === 'all') {
+    return milestones.value;
+  } else if (currentFilter.value === 'ongoing') {
+    // Tampilkan semua milestone yang statusnya belum selesai (bukan COMPLETED)
+    return milestones.value.filter(
+      milestone => milestone.status && milestone.status.toUpperCase() !== 'COMPLETED'
+    );
+  }
+  // Jika ingin menambah filter lain, tambahkan else if di sini
+  return [];
+});
+
+// Method untuk mengubah filter
+const filterMilestones = (filterType) => {
+  currentFilter.value = filterType;
+};
+
 const loadProjectDocuments = async () => {
   if (!route.params.id) return;
   
@@ -461,6 +482,18 @@ onMounted(async () => {
                 ></div>
               </div>
             </div>
+            <!-- Filter Buttons -->
+            <div class="filter-controls mb-6 flex items-center gap-4">
+              <label for="milestone-filter" class="text-sm font-medium text-gray-700">Filter Status:</label>
+                <select 
+                    id="milestone-filter" 
+                    v-model="currentFilter" 
+                    class="block w-auto py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                >
+                  <option value="all">Semua Milestones</option>
+                  <option value="ongoing">Belum Selesai</option>
+                  </select>
+            </div>
 
             <!-- Loading State -->
             <div v-if="milestonesLoading" class="flex items-center justify-center py-8">
@@ -481,7 +514,7 @@ onMounted(async () => {
             </div>
 
             <!-- Milestones List -->
-            <div v-else-if="milestones.length > 0" class="space-y-4">
+            <div v-else-if="filteredMilestones.length > 0" class="space-y-4">
               <div 
                 v-for="milestone in milestones" 
                 :key="milestone.milestone_id"
@@ -787,6 +820,7 @@ onMounted(async () => {
                         </div>
                         <div>
                           <h4 class="font-semibold text-gray-800">ID: {{ manager.user_id }}</h4>
+                          
                           <div class="flex items-center gap-3 text-sm text-gray-600 mt-1">
                             <span class="flex items-center gap-1">
                               <div :class="['w-2 h-2 rounded-full', getRoleColor(manager.role_project)]"></div>

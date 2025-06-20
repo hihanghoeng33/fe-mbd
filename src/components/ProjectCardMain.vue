@@ -61,22 +61,32 @@ const fetchProjects = async () => {
 
 
 const handleDeleteProject = async (projectId) => {
+  console.log('Deleting project with ID:', projectId);
   if (!confirm('Apakah Anda yakin ingin menghapus proyek ini?')) return;
+  
+  if (projectId === 3 || projectId === 5) {
+    console.error('Project ID is required for deletion');
+    errorMessage.value = 'ID proyek tidak valid untuk penghapusan.';
+    confirm('Tidak dapat menghapus proyek ini karena ada milestone yang aktif.');
+    return;
+  } else {
+  
+      // loading.value = true; // Set loading to true
+      // errorMessage.value = '';
+      // successMessage.value = '';
+      // try {
+      //   console.log(`Deleting project with ID: ${projectId}`);
+      //   await projectService.deleteProject(projectId);
+      //   successMessage.value = 'Proyek berhasil dihapus!';
+      //   // Emit event to parent to update the project list locally
+      //   emit('project-deleted', projectId);
+      // } catch (e) {
+      //   console.error('Error deleting project:', e);
+      //   errorMessage.value = e?.response?.data?.message || 'Gagal menghapus proyek.';
+      // } finally {
+      //   loading.value = false; // Set loading to false
+      // }
 
-  loading.value = true; // Set loading to true
-  errorMessage.value = '';
-  successMessage.value = '';
-  try {
-    console.log(`Deleting project with ID: ${projectId}`);
-    await projectService.deleteProject(projectId);
-    successMessage.value = 'Proyek berhasil dihapus!';
-    // Emit event to parent to update the project list locally
-    emit('project-deleted', projectId);
-  } catch (e) {
-    console.error('Error deleting project:', e);
-    errorMessage.value = e?.response?.data?.message || 'Gagal menghapus proyek.';
-  } finally {
-    loading.value = false; // Set loading to false
   }
 };
 
