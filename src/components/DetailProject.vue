@@ -22,6 +22,8 @@ const joinRequestsError = ref('');
 const loading = ref(false);
 const error = ref('');
 const user = ref(null);
+const completingProject = ref(false);
+const projectCompletionMessage = ref('');
 
 // Get current user
 onMounted(async () => {
@@ -58,6 +60,48 @@ const tabsForLecturer = computed(() => {
   }
   return tabs;
 });
+
+const markProjectAsCompleted = async () => {
+  if (!project.value || !isLecturer.value) return;
+  
+  const confirmComplete = confirm(
+    `Apakah Anda yakin ingin menandai proyek "${project.value.title}" sebagai selesai? ` +
+    'Semua anggota proyek akan menjadi tidak aktif.'
+  );
+  
+  if (!confirmComplete) return;
+  
+  completingProject.value = true;
+  projectCompletionMessage.value = '';
+  
+  try {
+    // Update project status to COMPLETED (frontend only)
+    project.value.status = 'COMPLETED';
+    project.value.end_date = new Date().toISOString();
+    
+    // Set all members as inactive (frontend only)
+    members.value = members.value.map(member => ({
+      ...member,
+      is_active: false
+    }));
+    
+    projectCompletionMessage.value = 'Proyek berhasil ditandai sebagai selesai! Semua anggota kini tidak aktif.';
+    
+    // Clear message after 5 seconds
+    setTimeout(() => {
+      projectCompletionMessage.value = '';
+    }, 5000);
+    
+    console.log('Project marked as completed:', project.value);
+    console.log('All members set to inactive:', members.value);
+    
+  } catch (error) {
+    console.error('Error marking project as completed:', error);
+    projectCompletionMessage.value = 'Gagal menandai proyek sebagai selesai.';
+  } finally {
+    completingProject.value = false;
+  }
+};
 
 const loadProjectDetails = async () => {
   loading.value = true;
@@ -210,11 +254,17 @@ const formatDateTime = (dateString) => {
 
 const formatDate = (dateString) => {
   if (!dateString) return '-';
-  return new Date(dateString).toLocaleDateString('id-ID', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return 'Format tanggal tidak valid';
+  }
 };
 
 const getStatusColor = (status) => {
@@ -423,16 +473,79 @@ onMounted(async () => {
       </div>
 
       <!-- Project Content -->
-      <div v-else-if="project">
+<div v-else-if="project">
+  <!-- Success/Error Messages for Project Completion -->
+  <div v-if="projectCompletionMessage" class="mb-4 p-4 rounded-lg"
+       :class="projectCompletionMessage.includes('berhasil') ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-red-50 border border-red-200 text-red-700'">
+    <div class="flex items-center">
+      <svg v-if="projectCompletionMessage.includes('berhasil')" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      </svg>
+      <svg v-else class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      {{ projectCompletionMessage }}
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <nav class="border-b border-gray-200 mb-6">
+    <div class="flex space-x-8">
+      <button
+        v-for="tab in tabsForLecturer"
+        :key="tab.value"
+        @click="activeTab = tab.value"
+        :class="[
+          'py-2 px-1 border-b-2 font-medium text-sm transition-colors',
+          activeTab === tab.value
+            ? 'border-blue-500 text-blue-600'
+            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+        ]"
+      >
+        {{ tab.name }}
+      </button>
+    </div>
+  </nav>
+
+  <div class="flex flex-col lg:flex-row gap-6">
+    <div class="lg:w-3/4">
+      <!-- Tab Content -->
+      <div class="bg-white rounded-lg">
         <!-- Description Tab -->
         <div class="text-gray-700" v-if="activeTab === 'deskripsi'">
           <div class="bg-white rounded-lg p-6 mb-6">
-            <h1 class="text-2xl font-bold text-gray-800 mb-4">{{ project.title }}</h1>
+            <div class="flex justify-between items-start mb-4">
+              <h1 class="text-2xl font-bold text-gray-800">{{ project.title }}</h1>
+              
+              <!-- Mark as Completed Button (Only for Lecturers and if project is not completed) -->
+              <div v-if="isLecturer && project.status?.toUpperCase() !== 'COMPLETED'" class="flex items-center gap-3">
+                <button
+                  @click="markProjectAsCompleted"
+                  :disabled="completingProject"
+                  class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Tandai proyek sebagai selesai"
+                >
+                  <svg v-if="!completingProject" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19L21 7l-1.41-1.41z"/>
+                  </svg>
+                  <svg v-else class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8A8 8 0 0 1 12 20Z" opacity=".5"/>
+                    <path fill="currentColor" d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z"/>
+                  </svg>
+                  <span class="text-sm">
+                    {{ completingProject ? 'Menyelesaikan...' : 'Tandai Selesai' }}
+                  </span>
+                </button>
+              </div>
+            </div>
             
             <!-- Status Badge -->
             <div class="flex items-center gap-2 mb-4">
               <div :class="['w-3 h-3 rounded-full', getStatusColor(project.status)]"></div>
               <span class="text-sm font-medium">{{ getStatusText(project.status) }}</span>
+              <span v-if="project.status?.toUpperCase() === 'COMPLETED'" class="text-xs text-gray-500 ml-2">
+                (Diselesaikan: {{ formatDate(project.end_date) }})
+              </span>
             </div>
 
             <!-- Categories -->
@@ -457,7 +570,14 @@ onMounted(async () => {
               </div>
               <div>
                 <h3 class="text-sm font-medium text-gray-600 mb-1">Tanggal Selesai:</h3>
-                <p class="text-gray-800">{{ formatDate(project.end_date) }}</p>
+                <p class="text-gray-800">
+                  {{ project.end_date ? formatDate(project.end_date) : 
+                      (project.status?.toUpperCase() === 'COMPLETED' ? 'Baru saja diselesaikan' : 'Belum ditentukan') }}
+                </p>
+                <!-- Show completion indicator if just completed -->
+                <p v-if="project.status?.toUpperCase() === 'COMPLETED' && project.end_date" class="text-xs text-green-600 mt-1">
+                  ✓ Proyek diselesaikan pada {{ formatDate(project.end_date) }}
+                </p>
               </div>
             </div>
 
@@ -596,22 +716,22 @@ onMounted(async () => {
               <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
               </svg>
-              <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak Ada Permintaan Bergabung</h3>
-              <p class="text-gray-500">Belum ada mahasiswa yang mengajukan permintaan untuk bergabung dengan proyek ini.</p>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Permintaan</h3>
+              <p class="text-gray-500">Tidak ada permintaan bergabung yang perlu ditinjau.</p>
             </div>
 
             <!-- Join Requests List -->
             <div v-else class="space-y-4">
-              <div
-                v-for="request in joinRequests"
-                :key="request.project_member_id"
-                class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+              <div 
+                v-for="request in joinRequests" 
+                :key="request.user_id"
+                class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
               >
                 <div class="flex items-center justify-between">
                   <div class="flex items-center space-x-4">
                     <div class="flex-shrink-0">
-                      <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                         </svg>
                       </div>
@@ -630,21 +750,16 @@ onMounted(async () => {
                   
                   <div class="flex items-center space-x-3">
                     <button
-                      @click="approveJoinRequest(request.project_member_id)"
-                      class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
+                      @click="rejectJoinRequest(request.user_id)"
+                      class="px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition-colors"
                     >
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                      </svg>
-                      Setujui
+                      Tolak
                     </button>
                     <button
-                      class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
+                      @click="approveJoinRequest(request.user_id)"
+                      class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors"
                     >
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                      </svg>
-                      Tolak
+                      Setujui
                     </button>
                   </div>
                 </div>
@@ -775,7 +890,26 @@ onMounted(async () => {
                       Lihat
                     </button>
                   </div>
-                </div>  
+                </div>
+
+                <!-- Additional User Card (Optional - shows more detailed user info) -->
+                <div class="mt-3 pt-3 border-t border-gray-100">
+                  <div class="flex items-center justify-between text-xs text-gray-500">
+                    <div class="flex items-center gap-2">
+                      <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24">
+                          <path fill="currentColor" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                      </div>
+                      <span>
+                        <strong>{{ getUserDisplayName(document.users_user_id) }}</strong>
+                      </span>
+                    </div>
+                    <span class="text-gray-400">
+                      {{ getUserInfo(document.users_user_id).role }} dalam proyek
+                    </span>
+                  </div>
+                </div>
               </div>
               
               <!-- Documents Summary with User Stats -->
@@ -908,7 +1042,7 @@ onMounted(async () => {
               <div v-if="getManagersAndMembers().membersList.length > 0">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M16 4c0-1.11.89-2 2-2s2 .89 2 2s-.89 2-2 2s-2-.89-2-2M21 16v-2c0-1.1-.9-2-2-2h-2v7h2v-2.5l1.8 3H23l-1.8-3zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5M5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2s-2 .89-2 2s.89 2 2 2M7.5 22v-7H9V9c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v6h1.5v7h4zm6.5-7v7h1.5v-7h-1.5z"/>
+                    <path fill="currentColor" d="M16 4c0-1.11.89-2 2-2s2 .89 2 2s-.89 2-2 2s-2-.89-2-2M21 16v-2c0-1.1-.9-2-2-2h-2v7h2v-2.5l1.8 3H23l-1.8-3zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5M5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2s-2 .89-2 2s.89 2 2 2M7.5 22v-7H9V9c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v6h1.5v7h1v-6H5v6h2.5z"/>
                   </svg>
                   Anggota Tim ({{ getManagersAndMembers().membersList.length }})
                 </h3>
@@ -945,49 +1079,63 @@ onMounted(async () => {
                 </div>
               </div>
 
-              <!-- All Members as One List (if no role separation needed) -->
-              <div v-if="getManagersAndMembers().managers.length === 0 && getManagersAndMembers().membersList.length === 0" class="mb-8">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M16 4c0-1.11.89-2 2-2s2 .89 2 2s-.89 2-2 2s-2-.89-2-2M21 16v-2c0-1.1-.9-2-2-2h-2v7h2v-2.5l1.8 3H23l-1.8-3zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5M5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2s-2 .89-2 2s.89 2 2 2M7.5 22v-7H9V9c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v6h1.5v7h4zm6.5-7v7h1.5v-7h-1.5z"/>
-                  </svg>
-                  Semua Anggota ({{ members.length }})
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div 
-                    v-for="member in members" 
-                    :key="member.project_member_id"
-                    class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
-                  >
-                    <div class="flex items-center justify-between">
-                      <div class="flex items-center gap-3">
-                        <div :class="[
-                          'w-10 h-10 rounded-full flex items-center justify-center text-white font-bold',
-                          member.role_project?.toUpperCase() === 'MANAGER' ? 'bg-purple-500' : 'bg-blue-500'
-                        ]">
-                          {{ member.user_id?.toString().slice(-2) || 'A' }}
-                        </div>
-                        <div>
-                          <h4 class="font-semibold text-gray-800">ID: {{ member.user_id }}</h4>
-                          <div class="flex items-center gap-3 text-sm text-gray-600 mt-1">
-                            <span class="flex items-center gap-1">
-                              <div :class="['w-2 h-2 rounded-full', getRoleColor(member.role_project)]"></div>
-                              {{ getRoleText(member.role_project) }}
-                            </span>
-                            <span class="flex items-center gap-1">
-                              <div :class="['w-2 h-2 rounded-full', getMemberStatusColor(member.is_active)]"></div>
-                              {{ getMemberStatusText(member.is_active) }}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="text-xs text-gray-500 mt-3">
-                      Bergabung: {{ formatDateTime(member.joined_at) }}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <!-- All Members as One List -->
+<div class="mb-8">
+  <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+    </svg>
+    Semua Anggota ({{ members.length }})
+    <span v-if="project.status?.toUpperCase() === 'COMPLETED'" class="text-sm text-red-600 bg-red-50 px-2 py-1 rounded-full">
+      Proyek Selesai - Semua Anggota Tidak Aktif
+    </span>
+  </h3>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div 
+      v-for="member in members" 
+      :key="member.project_member_id"
+      :class="[
+        'border border-gray-200 rounded-lg p-4 transition-all',
+        member.is_active ? 'hover:shadow-md' : 'bg-gray-50 border-gray-300'
+      ]"
+    >
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div :class="[
+            'w-10 h-10 rounded-full flex items-center justify-center text-white font-bold',
+            member.role_project?.toUpperCase() === 'MANAGER' ? 'bg-purple-500' : 'bg-blue-500',
+            !member.is_active ? 'grayscale opacity-60' : ''
+          ]">
+            {{ member.user_id?.toString().slice(-2) || 'A' }}
+          </div>
+          <div>
+            <h4 class="font-semibold text-gray-800">ID: {{ member.user_id }}</h4>
+            <div class="flex items-center gap-3 text-sm text-gray-600 mt-1">
+              <span class="flex items-center gap-1">
+                <div :class="['w-2 h-2 rounded-full', getRoleColor(member.role_project)]"></div>
+                {{ getRoleText(member.role_project) }}
+              </span>
+              <span class="flex items-center gap-1">
+                <div :class="['w-2 h-2 rounded-full', getMemberStatusColor(member.is_active)]"></div>
+                <span :class="!member.is_active ? 'text-red-600 font-medium' : ''">
+                  {{ getMemberStatusText(member.is_active) }}
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div v-if="!member.is_active" class="text-red-500">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5l1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+        </div>
+      </div>
+      <div class="text-xs text-gray-500 mt-3">
+        Bergabung: {{ formatDateTime(member.joined_at) }}
+      </div>
+    </div>
+  </div>
+</div>
 
               <!-- Summary Stats -->
               <div class="bg-gray-50 rounded-lg p-4 mt-6">
@@ -1006,8 +1154,25 @@ onMounted(async () => {
                     <div class="text-xs text-gray-600">Anggota Tim</div>
                   </div>
                   <div class="bg-white rounded-lg p-3">
-                    <div class="text-2xl font-bold text-emerald-600">{{ members.filter(m => m.is_active).length }}</div>
-                    <div class="text-xs text-gray-600">Aktif</div>
+                    <div :class="[
+                      'text-2xl font-bold',
+                      project.status?.toUpperCase() === 'COMPLETED' ? 'text-red-600' : 'text-emerald-600'
+                    ]">
+                      {{ members.filter(m => m.is_active).length }}
+                    </div>
+                    <div class="text-xs text-gray-600">
+                      {{ project.status?.toUpperCase() === 'COMPLETED' ? 'Aktif (Proyek Selesai)' : 'Aktif' }}
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Additional info for completed projects -->
+                <div v-if="project.status?.toUpperCase() === 'COMPLETED'" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <div class="flex items-center text-red-700 text-sm">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Proyek ini telah selesai. Semua anggota telah dinonaktifkan secara otomatis.
                   </div>
                 </div>
               </div>
@@ -1016,7 +1181,7 @@ onMounted(async () => {
             <!-- Empty State -->
             <div v-else class="text-center py-12">
               <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" class="mx-auto mb-4 text-gray-400">
-                <path fill="currentColor" d="M16 4c0-1.11.89-2 2-2s2 .89 2 2s-.89 2-2 2s-2-.89-2-2M21 16v-2c0-1.1-.9-2-2-2h-2v7h2v-2.5l1.8 3H23l-1.8-3zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5M5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2s-2 .89-2 2s.89 2 2 2M7.5 22v-7H9V9c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v6h1.5v7h4zm6.5-7v7h1.5v-7h-1.5z"/>
+                <path fill="currentColor" d="M16 4c0-1.11.89-2 2-2s2 .89 2 2s-.89 2-2 2s-2-.89-2-2M21 16v-2c0-1.1-.9-2-2-2h-2v7h2v-2.5l1.8 3H23l-1.8-3zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5M5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2s-2 .89-2 2s.89 2 2 2M7.5 22v-7H9V9c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v6h1.5v7h1v-6H5v6h2.5z"/>
               </svg>
               <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Anggota</h3>
               <p class="text-gray-500">Proyek ini belum memiliki anggota yang terdaftar.</p>
@@ -1024,6 +1189,9 @@ onMounted(async () => {
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
     </div>
   </div>
 </template>
